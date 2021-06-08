@@ -35,15 +35,9 @@ STATIC void k_init_hw_stackframe(cpu_hw_context_t *ctx, void *pc)
     cpu_init_hw_stackframe(ctx, pc, CPU_TRAPS_ENABLED); // TODO: make interrupt setting flexible
 }
 
-STATIC void k_init_thread_context(k_thread_context_t *ctx, void *pc, void *arg)
-{
-    k_init_hw_stackframe(&ctx->hw_ctx, pc);
-    k_init_sw_stackframe(&ctx->sw_ctx, arg);
-}
-
 STATIC int k_init_thread_stack(k_thread_t *this, void *pc, void *arg)
 {
-    if ((this == NULL) || (pc == NULL))
+    if (pc == NULL)
     {
         return -1;
     }
@@ -100,18 +94,12 @@ k_status_code_t k_thread_create(unsigned int priority, size_t stack_size, k_thre
     memset(the_thread, 0, sizeof(*the_thread));
 
     /* allocate its stack */
-    k_thread_t *the_stack = malloc(stack_size);
+    void *the_stack = malloc(stack_size);
     memset(the_stack, K_MEM_UNUSED_PTRN, stack_size);
     the_thread->stack_mem = the_stack;
+    the_thread->stack_mem_size = stack_size;
 
-
-    /* connect the thread to the scheduler */
-    if (k_sched_init_thread_metadata(&the_thread->state) < 0)
-    {
-        return -1;
-    }
-
-    k_sched_mark_job_created(the_thread->state);
+    k_sched_job_create(the_thread, priority);
 
     /* assign the ID */
     *id = g_kern_assign_id;
@@ -140,7 +128,7 @@ k_status_code_t k_thread_start(k_thread_id_t id, k_thread_entry_t entry, k_threa
 
     the_thread->entry = entry;
     k_init_thread_stack(the_thread, entry, args);
-    k_sched_mark_job_started(the_thread->state);
+    k_sched_job_start(the_thread);
 
     cpu_exit_critical();
 
@@ -157,8 +145,8 @@ k_status_code_t k_thread_suspend(k_thread_id_t id)
 
     cpu_enter_critical();
 
-    k_sched_mark_job_suspended(the_thread->state);
-    k_yield();
+    k_sched_job_suspend(the_thread);
+//    k_thread_yield();
 
     cpu_exit_critical();
 
@@ -175,7 +163,7 @@ k_status_code_t k_thread_resume(k_thread_id_t id)
 
     cpu_enter_critical();
 
-    k_sched_mark_job_running(the_thread->state);
+    k_sched_job_resume(the_thread);
 
     cpu_exit_critical();
 
@@ -209,15 +197,16 @@ k_status_code_t k_thread_kill(k_thread_id_t id)
 
     cpu_enter_critical();
 
-	// find next thread
-	k_thread_t *next = k_sched_next(the_thread);
-	// cpu_stash_sp = next->sp;
-    k_sched_job_delete(the_thread->state);
+    if (id == K_THREAD_SELF)
+    {
+        k_sched_job_next();
+    }
+
+    k_sched_job_delete(the_thread);
 
     /* deallocate data */
-	free(the_thread->state);
-	free(the_thread->stack_mem);
 	free(the_thread);
+	free(the_thread->stack_mem);
 
     cpu_exit_critical();
 
@@ -233,5 +222,5 @@ void k_thread_exit(int ret)
 
 k_thread_id_t k_thread_current(void)
 {
-
+	return k_sched_current_job()->id;
 }

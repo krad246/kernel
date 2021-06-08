@@ -4,6 +4,7 @@
 #include <msp430.h>
 #include <stddef.h>
 
+#include "sched.h"
 #include "critical.h"
 #include "trap.h"
 
@@ -29,6 +30,11 @@ void timer0_a1_handler(unsigned int inum, void *arg)
     }
 }
 
+k_status_code_t Init(k_thread_arg_t *unused)
+{
+    return 0;
+}
+
 // TODO: delete trap_def_headers
 
 int main(void)
@@ -38,6 +44,15 @@ int main(void)
     P1DIR |= BIT0;PM5CTL0 &= ~LOCKLPM5;
 
     k_traps_init();
+	k_sched_init(K_SCHED_ROUND_ROBIN);
+
+	k_thread_id_t id;
+	k_thread_create(1, 256, &id);
+	k_thread_create(1, 256, &id);
+
+	k_thread_start(0, Init, &id);
+	k_thread_kill(0);
+	k_thread_kill(1);
 
     //wdog_init(PERIOD)
     //timer_init(kernel_preemption_timer)

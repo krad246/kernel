@@ -11,6 +11,7 @@
 /*******************************************************************************
  * includes
  ******************************************************************************/
+#include <stddef.h>
 
 /*******************************************************************************
  * Arithmetic macros
@@ -53,6 +54,11 @@
 #define ARRAY_SIZE(arr) 			(sizeof((arr)) / sizeof((arr[0])))
 #define DECLTYPE(x)					typeof((x))
 #define FIELD_SIZEOF(t, field)		(sizeof(((t *) 0)->field))
+#define CONTAINER_OF(ptr, type, member) \
+({ \
+    const typeof( ((type *)0)->member ) *__mptr = (ptr);  \
+    (type *)( (char *)__mptr - offsetof(type,member) ); \
+})
 
 /*******************************************************************************
  * Stringification macros

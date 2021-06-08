@@ -5,25 +5,87 @@
  *      Author: krad2
  */
 
-#if 0
+#define SCHED_C_
 
-typedef struct k_sched
+/*******************************************************************************
+ * includes
+ ******************************************************************************/
+#include "sched.h"
+#include "sched_priv.h"
+
+/*******************************************************************************
+ * defines
+ ******************************************************************************/
+
+/*******************************************************************************
+ * public functions
+ ******************************************************************************/
+k_status_code_t k_sched_init(k_sched_policy_t policy)
 {
-	/* TODO: keep a standardized interface here */
-	int (*init)(void);
+	if (policy >= K_SCHED_N_POLICY)
+	{
+		return -1;
+	}
 
-	int (*create)(k_thrd_t *job, unsigned int);
+	g_kern_sched.known_policies[K_SCHED_ROUND_ROBIN] = g_kern_rr_policy;
 
-	int (*start)(unsigned int);
+	g_kern_sched.policy = g_kern_sched.known_policies[policy];
+	if (g_kern_sched.policy == NULL)
+	{
+		return -2;
+	}
 
-	k_thrd_t *(*next)(k_thrd_t *job);
+	g_kern_sched.policy->init();
 
-	int (*pause)(unsigned int);
+	return 0;
+}
 
-	int (*resume)(unsigned int);
+k_status_code_t k_sched_job_start(k_thread_t *thread)
+{
+	return g_kern_sched.policy->start(thread);
+}
 
-	k_thrd_t *(*yield)(k_thrd_t *job);
+k_status_code_t k_sched_job_suspend(k_thread_t *thread)
+{
+	return g_kern_sched.policy->pause(thread);
+}	
 
-	int (*kill)(unsigned int);
-} k_sched_t;
-#endif
+k_status_code_t k_sched_job_resume(k_thread_t *thread)
+{
+	return g_kern_sched.policy->resume(thread);
+}
+
+k_status_code_t k_sched_job_restart(k_thread_t *thread)
+{
+	return g_kern_sched.policy->restart(thread);
+}
+
+k_status_code_t k_sched_job_create(k_thread_t *thread, unsigned int prio)
+{
+	return g_kern_sched.policy->create(thread, prio);
+}
+
+k_status_code_t k_sched_job_delete(k_thread_t *thread)
+{
+	return g_kern_sched.policy->kill(thread);
+}
+
+void k_sched_job_next(void)
+{
+	g_kern_sched.curr_thread = (volatile k_thread_t *) g_kern_sched.policy->next((k_thread_t *) g_kern_sched.curr_thread);
+}
+	
+void k_sched_job_yield(void)
+{
+	k_sched_job_next();
+}
+
+k_thread_t *k_sched_lkup_by_id(k_thread_id_t id)
+{
+	return g_kern_sched.policy->find(id);
+}
+
+volatile k_thread_t *k_sched_current_job(void)
+{
+	return g_kern_sched.curr_thread;
+}

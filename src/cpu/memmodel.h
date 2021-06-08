@@ -14,6 +14,8 @@
 #ifndef __ASSEMBLER__
     #include <msp430.h>
 	#include <stdint.h>
+	#include <stdbool.h>
+	#include <string.h>
     #include "attributes.h"
 #endif
 
@@ -64,7 +66,7 @@
  * data structures
  ******************************************************************************/
 #ifndef __ASSEMBLER__
-	#if defined(THREAD_C_) || defined(C_TRAPS_C_)
+	#if defined(THREAD_C_) || defined(C_TRAPS_C_) || defined(SCHED_C_)
 
         #ifdef __MSP430X_LARGE__
             #define CPU_PC_HIGH_BITS(x) (((x) & 0xF0000) >> 16)
