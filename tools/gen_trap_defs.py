@@ -12,18 +12,27 @@ def main():
 
 	autogen = open(args.destination, "w")
 
+	k_prefix = "K_" if args.kernel else ""
 	header = \
 """
-/*
- *  Created on: 
- *      Author: krad2
- */
+#ifndef {}TRAP_DEFS_H_
+#define {}TRAP_DEFS_H_
 
+/*******************************************************************************
+ * includes
+ ******************************************************************************/
 #include <msp430.h>
 #include "attributes.h"
+""".format(k_prefix, k_prefix)
+
+	defines = \
 """
+/*******************************************************************************
+ * defines
+ ******************************************************************************/"""
 
 	autogen.write(header)
+	autogen.write(defines)
 
 	first_valid_int = None
 
@@ -86,6 +95,9 @@ def main():
 		autogen.write("#if defined(C_TRAPS_C_) || defined(TRAP_C_)\n")
 		autogen.write("#define CPU_N_TRAPS ({})\n".format(len(vnums)))
 		autogen.write("#endif\n")
+
+	autogen.write("\n")
+	autogen.write("#endif\n")
 
 if __name__ == "__main__":
 	main()

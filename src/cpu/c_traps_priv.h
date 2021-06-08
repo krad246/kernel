@@ -19,6 +19,8 @@
 #include "c_traps.h"
 #include "critical.h"
 
+#include "memmodel.h"
+
 /*******************************************************************************
  * defines
  ******************************************************************************/
@@ -28,5 +30,8 @@
  ******************************************************************************/
 STATIC cpu_trap_table_t *g_cpu_trap_table_p = NULL;
 STATIC volatile bool g_cpu_in_trap = false;
+
+EXTERN void *g_cpu_trap_sp;
+EXTERN unsigned char g_cpu_trap_stack[CPU_TRAP_STACK_SIZE];
 
 #endif /* C_TRAPS_PRIV_H_ */

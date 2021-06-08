@@ -5,13 +5,6 @@ CONFIG_MCU		:= msp430fr5994
 CONFIG_K_TIMER	:= timer0_a0 # todo - strip the 0 off timer when passing to build as TIMER_A0_BASE. this is the kernel timer macro used
 CONFIG_K_UART	:= usci_a0
 
-define blob
-	$(shell echo \
-		$(shell echo $1 | cut -d '_' -f1 | sed 's/[0-9]//g')_ \
-		$(shell echo $1 | cut -d '_' -f2) \
-		_BASE)
-endef
-
 #-------------------------------------------------------------------------------
 # Toolchain definitions
 #-------------------------------------------------------------------------------
@@ -58,14 +51,21 @@ ERRATA_FLAGS	= cpu4,cpu8,cpu11,cpu12,cpu13,cpu19
 SIZE_FLAGS		= -ffreestanding -nostartfiles -mtiny-printf -msmall
 STYLE_FLAGS		= -masm-hex -ffunction-sections -fdata-sections
 
+define k_device_name
+$(shell echo 
+	$(shell echo $1 | cut -d '_' -f1 | sed 's/[0-9]//g')_$(shell echo $1 | cut -d '_' -f2) | 
+	tr '[:lower:]' '[:upper:]')
+endef
+#TODO restrict this define to the scope of kernel code only 
 CFLAGS			:= -mmcu=$(CONFIG_MCU) $(OPT_FLAGS) $(WARN_FLAGS) \
-					-msilicon-errata=$(ERRATA_FLAGS) \
-					-msilicon-errata-warn=$(ERRATA_FLAGS) \
+					-msilicon-errata-warn=$(ERRATA_FLAGS)  \
 					$(SIZE_FLAGS) $(STYLE_FLAGS) \
-					$(addprefix -I, $(INCDIRS)) -MMD -MP
-
-ASFLAGS			:= $(CFLAGS) -x assembler-with-cpp
-LDFLAGS			:= -flto -Wl,-Map=$(APP).map -Wl,--gc-sections
+					$(addprefix -I, $(INCDIRS)) -MMD -MP \
+					-DCONFIG_K_TIMER=$(call k_device_name, $(CONFIG_K_TIMER)) \
+					-DCONFIG_K_UART=$(call k_device_name, $(CONFIG_K_UART)) \
+					-DCPU_TRAP_STACK_SIZE=128
+ASFLAGS			:= $(CFLAGS) -x assembler-with-cpp -Wa,-mP -Wa,-mn
+LDFLAGS			:= -flto -Wl,-Map=$(APP).map -Wl,--gc-sections -Wl,--no-relax
 
 #-------------------------------------------------------------------------------
 # The magic

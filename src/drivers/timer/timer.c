@@ -7,6 +7,13 @@
 
 // TODO: autogenerate the timer memory map from the symbols linker script 
 
+typedef struct
+{
+
+} timer_t;
+
+// create an enum from all the timerAs available 
+
 //int timer_init(tim_t dev, uint32_t freq, timer_cb_t cb, void *arg)
 //{
 //    /* using fixed TIMER_BASE for now */

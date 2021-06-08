@@ -1,3 +1,10 @@
+/*
+ * memmodel.h
+ *
+ *  Created on: Jun 4, 2021
+ *      Author: krad2
+ */
+
 #ifndef MEMMODEL_H_
 #define MEMMODEL_H_
 
@@ -5,7 +12,9 @@
  * includes
  ******************************************************************************/
 #ifndef __ASSEMBLER__
+    #include <msp430.h>
 	#include <stdint.h>
+    #include "attributes.h"
 #endif
 
 /*******************************************************************************
@@ -55,7 +64,15 @@
  * data structures
  ******************************************************************************/
 #ifndef __ASSEMBLER__
-	#if defined(THREAD_C_)
+	#if defined(THREAD_C_) || defined(C_TRAPS_C_)
+
+        #ifdef __MSP430X_LARGE__
+            #define CPU_PC_HIGH_BITS(x) (((x) & 0xF0000) >> 16)
+        #endif
+
+        #define CPU_PC_LOW_BITS(x) ((x) & 0xFFFF)
+        #define CPU_SR_BITS(x) ((x) & 0xFF)
+
 		typedef uintptr_t cpu_reg_t;
 
 		/* Software context for the CPU */
@@ -78,36 +95,60 @@
 		/* Hardware-stacked context for the CPU */
 		typedef struct PACKED
 		{
-			uint32_t value;
-			uint16_t words[2];
 
-			/**
-			 * CPUX Trapframe (20-bit)
-			 * - SP + 2: PC[15:0]
-			 * - SP: PC[19:16], SR
-			 *
-			 * CPU Trapframe (16-bit)
-			 * - SP + 2: PC[15:0]
-			 * - SP: SR
-			 */
+            /**
+             * CPUX Trapframe (20-bit)
+             * - SP + 2: PC[15:0]
+             * - SP: PC[19:16], SR[11:0]
+             *
+             * CPU Trapframe (16-bit)
+             * - SP + 2: PC[15:0]
+             * - SP: SR
+             */
 
-			#if defined(__MSP430X_LARGE__)
+            #ifdef __MSP430X_LARGE__
+		        uint16_t pc_plus_sr;
+		        uint16_t pc_low_bits;
+            #else
+		        uint16_t pc;
+		        uint16_t sr;
+            #endif
 
-			struct {
-				unsigned int sr : 12;
-				unsigned int pc_high : 4;
-				unsigned int pc_low : 16;
-			};
-
-			#else
-
-			struct {
-				unsigned int sr : 16;
-				unsigned int pc : 16;
-			};
-
-			#endif
 		} cpu_hw_context_t;
+
+		STATIC INLINE void cpu_init_hw_stackframe(cpu_hw_context_t *ctx, void *pc, bool trap_en)
+		{
+            uintptr_t pc_bits = (uintptr_t) pc;
+
+            #ifdef __MSP430X_LARGE__
+		        if (trap_en)
+		        {
+	                ctx->pc_plus_sr = CPU_SR_BITS(GIE) | CPU_PC_HIGH_BITS(pc_bits);
+	                ctx->pc_low_bits = CPU_PC_LOW_BITS(pc_bits);
+		        } else
+		        {
+                    ctx->pc_plus_sr = CPU_PC_HIGH_BITS(pc_bits);
+                    ctx->pc_low_bits = CPU_PC_LOW_BITS(pc_bits);
+		        }
+            #else
+                if (trap_en)
+                {
+                    ctx->pc = CPU_PC_LOW_BITS(pc_bits);
+                    ctx->sr = CPU_SR_BITS(GIE);
+                } else
+                {
+                    ctx->pc = CPU_PC_LOW_BITS(pc_bits);
+                    ctx->sr = 0;
+                }
+            #endif
+		}
+
+		STATIC INLINE void cpu_init_sw_stackframe(cpu_sw_context_t *ctx, cpu_reg_t r12)
+		{
+		    memset(ctx, 0, sizeof(cpu_sw_context_t));
+		    ctx->r12 = r12; /* provide 1 arg for the calling convention */
+		}
+
 	#endif
 #endif
 

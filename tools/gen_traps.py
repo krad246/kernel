@@ -23,9 +23,9 @@ def main():
 ;-------------------------------------------------------------------------------
 ; MSP430 interrupt handler installation
 ;-------------------------------------------------------------------------------
-		
-		EXTERN(cpu_trap)	; CPU_TRAP calls this
-		EXTERN(cpu_panic)	; CPU_BAD_TRAP calls this
+
+		EXTERN(cpu_trap)			; CPU_TRAP calls this
+		EXTERN(cpu_panic)			; CPU_BAD_TRAP calls this
 		
 		.sect .handlers, \"ax\", @progbits
 """
@@ -110,6 +110,25 @@ def main():
 	for vnum in vnums:
 		autogen.write("\t\t\tCPU_TRAP_DEFINE {}\n".format(vnum))
 
+	cpu_vars = \
+"""
+;-------------------------------------------------------------------------------
+; MSP430 interrupt declaration
+;-------------------------------------------------------------------------------
+
+		PUBLIC(g_cpu_trap_sp)			; programmable stack pointer for CPU
+		PUBLIC(g_cpu_trap_stack)	; processor interrupt stack
+
+		.data
+
+g_cpu_trap_sp:
+	.word 0
+
+g_cpu_trap_stack:
+	.space CPU_TRAP_STACK_SIZE
+"""
+
+	autogen.write(cpu_vars)
 	autogen.write("\n\t\t\t.end\n")
 	
 if __name__ == "__main__":

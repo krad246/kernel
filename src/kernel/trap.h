@@ -16,6 +16,8 @@
 /*******************************************************************************
  * defines
  ******************************************************************************/
+#define K_TRAP_STACK_SIZE	(CPU_TRAP_STACK_SIZE)
+
 typedef cpu_trap_args_t     k_trap_args_t;
 typedef cpu_trap_callback_t k_trap_callback_t;
 

@@ -11,6 +11,7 @@
 /*******************************************************************************
  * includes
  ******************************************************************************/
+#include <msp430.h>
 #include <stdbool.h>
 #include "attributes.h"
 #include "trap_defs.h"
@@ -18,11 +19,18 @@
 /*******************************************************************************
  * defines
  ******************************************************************************/
+#define CPU_TRAPS_ENABLED 	(GIE)
+#define CPU_TRAP_STACK_SIZE (128)
+
 typedef void cpu_trap_args_t;
 typedef void (*cpu_trap_callback_t)(unsigned int, cpu_trap_args_t *);
 
-/* only usable by kernel and hardware interrupt code */
+/*******************************************************************************
+ * data structures
+ ******************************************************************************/
 #if defined(C_TRAPS_C_) || defined(TRAP_C_)
+
+	#define CPU_MEM_UNUSED_PTRN (0x5A)
 	typedef struct
 	{
 		cpu_trap_callback_t callback;
@@ -30,6 +38,8 @@ typedef void (*cpu_trap_callback_t)(unsigned int, cpu_trap_args_t *);
 	} cpu_trap_handler_t;
 
 	typedef cpu_trap_handler_t cpu_trap_table_t[CPU_N_TRAPS];
+
+	EXTERN unsigned char g_cpu_trap_stack[CPU_TRAP_STACK_SIZE];
 #endif
 
 /*******************************************************************************

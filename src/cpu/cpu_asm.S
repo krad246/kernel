@@ -9,7 +9,7 @@
 ;-------------------------------------------------------------------------------
 ; defines for context switching
 ;-------------------------------------------------------------------------------
-.macro CPU_SAVE_CONTEXT
+.macro CPU_SAVE_CONTEXT stash
 		#if defined(__MSP430_HAS_MSP430XV2_CPU__) || \
 			defined(__MSP430_HAS_MSP430X_CPU__)
 
@@ -31,7 +31,7 @@
 		#endif
 .endm
 
-.macro CPU_RESTORE_CONTEXT
+.macro CPU_RESTORE_CONTEXT stash
 		#if defined(__MSP430_HAS_MSP430XV2_CPU__) || \
 			defined(__MSP430_HAS_MSP430X_CPU__)
 			POPM #12, r15
@@ -54,16 +54,36 @@
 ;-------------------------------------------------------------------------------
 ; defines for cpu interrupt vectoring
 ;-------------------------------------------------------------------------------
-
 ; Stores the interrupt number and vectors execution to a given function
 .macro CPU_TRAP_HANDLER fn tnum
+
+cpu_trap_\tnum\()_stash_context:
 	CPU_SAVE_CONTEXT
+	; MOV sp, g_cpu_trap_sp			; stash the stack pointer somewhere
 
+cpu_trap_\tnum\()_check_stack_switch_needed:
+	; MOV g_cpu_trap_stack, r12
+	; MOV g_cpu_trap_stack, r13
+	; ADD #CPU_TRAP_STACK_SIZE, r13
+
+	; cmp.w sp, r12	; r12 >= sp
+	; jc cpu_trap_\tnum\()_post_stack_switch
+
+	; cmp.w r13, sp	; sp >= r13
+	; jc cpu_trap_\tnum\()_post_stack_switch
+
+cpu_trap_\tnum\()_switch_stacks:
+	; MOV r13, sp					; switch to the base of the ISR stack
+
+cpu_trap_\tnum\()_post_stack_switch:
 	MOV #\tnum, r12
-	CALL #\fn		; fn(tnum)
+	CALL #\fn					; fn(tnum) - executes on the ISR stack
 
+cpu_trap_\tnum\()_restore_context:
+	; MOV &g_cpu_trap_sp, sp			; refetch the stack stash
 	CPU_RESTORE_CONTEXT
 
+cpu_trap_\tnum\()_finish:
 	bic.w #LPM3_bits, sr
 	nop
 	reti

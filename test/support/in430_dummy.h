@@ -57,179 +57,49 @@ void _disable_interrupts(void);
 
 void _bis_SR_register(unsigned int x);
 void _bic_SR_register(unsigned int x);
+
+void __bic_SR_register_on_exit(unsigned int x);
+#define _bic_SR_register_on_exit(x)        __bic_SR_register_on_exit(x)
+void __bis_SR_register_on_exit(unsigned int x);
+#define _bis_SR_register_on_exit(x)        __bis_SR_register_on_exit(x)
+
 unsigned int _get_SR_register(void);
+
+void *_get_SP_register(void);
+#define __get_SP_register() _get_SP_register()
+
+void _set_SP_register(void *x);
+#define __set_SP_register(x) _set_SP_register(x)
 
 unsigned int _swap_bytes(unsigned int x);
 
-/* Alternative names for GCC built-ins */
-#define _bic_SR_register_on_exit(x)        __bic_SR_register_on_exit(x)
-#define _bis_SR_register_on_exit(x)        __bis_SR_register_on_exit(x)
-
-/* Additional intrinsics provided for IAR/CCS compatibility */
-#define _bcd_add_short(x,y) \
-({ \
-        unsigned short __z = ((unsigned short) y); \
-	__asm__ __volatile__( \
-	"clrc \n\t" \
-	"dadd.w %1, %0" \
-	: "+r" ((unsigned short) __z) \
-	: "ri" ((unsigned short) x) \
-	); \
-	__z; \
-})
-
+unsigned short _bcd_add_short(unsigned short x, unsigned short y);
 #define __bcd_add_short(x,y) _bcd_add_short(x,y)
-
-#define _bcd_add_long(x,y) \
-({ \
-        unsigned long __z = ((unsigned long) y);	\
-	__asm__ __volatile__( \
-	"clrc \n\t" \
-	"dadd.w %L1, %L0 \n\t" \
-	"dadd.w %H1, %H0" \
-	: "+r" ((unsigned long) __z) \
-	: "ri" ((unsigned long) x) \
-	); \
-	__z; \
- })
-
+unsigned long _bcd_add_long(unsigned long x, unsigned long y);
 #define __bcd_add_long(x,y) _bcd_add_long(x,y)
 
-#define _get_SP_register() \
-({ \
-	unsigned int __x; \
-	__asm__ __volatile__( \
-	"mov SP, %0" \
-	: "=r" ((unsigned int) __x) \
-	:); \
-	__x; \
-})
-
-#define __get_SP_register() _get_SP_register()
-
-#define _set_SP_register(x) \
-({ \
-        __asm__ __volatile__ ("mov %0, SP" \
-        : : "ri"((unsigned int) x) \
-        );\
-})
-
-#define __set_SP_register(x) _set_SP_register(x)
-
-#define _data16_write_addr(addr,src) \
-({ \
-        unsigned long __src = src; \
-        __asm__ __volatile__ ( \
-	"movx.a %1, 0(%0)" \
-	: : "r"((unsigned int) addr), "m"((unsigned long) __src) \
-	); \
-})
-
+void _data16_write_addr(void *addr, unsigned int src);
 #define __data16_write_addr(addr,src) _data16_write_addr(addr,src)
 
-#define _data16_read_addr(addr) \
-({ \
-         unsigned long __dst; \
-         __asm__ __volatile__ ( \
-	 "movx.a @%1, %0" \
-	 : "=m"((unsigned long) __dst) \
-	 : "r"((unsigned int) addr) \
-	 ); \
-         __dst; \
-})
-
+unsigned int _data16_read_addr(void *addr, unsigned int src);
 #define __data16_read_addr(addr) _data16_read_addr(addr)
 
-#define _data20_write_char(addr,src) \
-({ \
-        unsigned int __tmp; \
-	unsigned long __addr = addr; \
-        __asm__ __volatile__ ( \
-	"movx.a %1, %0 \n\t" \
-	"mov.b  %2, 0(%0)" \
-	: "=&r"((unsigned int) __tmp) \
-        : "m"((unsigned long) __addr), "ri"((char) src)	 \
-	); \
-})
-
+void _data20_write_char(void *addr, unsigned char src);
 #define __data20_write_char(addr,src) _data20_write_char(addr,src)
 
-#define _data20_read_char(addr) \
-({ \
-        char __dst; \
-        unsigned int __tmp; \
-	unsigned long __addr = addr; \
-	__asm__ __volatile__ ( \
-	"movx.a %2, %1 \n\t" \
-	"mov.b 0(%1), %0" \
-	: "=r"((char) __dst), "=&r"((unsigned int) __tmp) \
-	: "m"((unsigned long) __addr) \
-	); \
-	__dst ; \
-})
-
+unsigned char _data20_read_char(void *addr);
 #define __data20_read_char(addr) _data20_read_char(addr)
 
-#define _data20_write_short(addr,src) \
-({ \
-        unsigned int __tmp; \
-	unsigned long __addr = addr; \
-        __asm__ __volatile__ ( \
-	"movx.a %1, %0 \n\t" \
-	"mov.w  %2, 0(%0)" \
-	: "=&r"((unsigned int) __tmp) \
-        : "m"((unsigned long) __addr), "ri"((short) src) \
-	); \
-})
-
+void _data20_write_short(void *addr, unsigned short src);
 #define __data20_write_short(addr,src) _data20_write_short(addr,src)
 
-#define _data20_read_short(addr) \
-({ \
-        short __dst; \
-        unsigned int __tmp; \
-	unsigned long __addr = addr; \
-	__asm__ __volatile__ ( \
-	"movx.a %2, %1 \n\t" \
-	"mov.w 0(%1), %0" \
-	: "=r"((short) __dst), "=&r"((unsigned int) __tmp) \
-	: "m"((unsigned long) __addr) \
-	); \
-	__dst ; \
-})
-
+void _data20_read_short(void *addr);
 #define __data20_read_short(addr) _data20_read_short(addr)
 
-#define _data20_write_long(addr,src) \
-({ \
-        unsigned int __tmp; \
-	unsigned long __addr = addr; \
-        __asm__ __volatile__ ( \
-	"movx.a %1, %0 \n\t" \
-	"mov.w  %L2, 0(%0) \n\t" \
-	"mov.w  %H2, 2(%0)" \
-	: "=&r"((unsigned int) __tmp) \
-        : "m"((unsigned long) __addr), "ri"((long) src) \
-	); \
-})
-
+void _data20_write_long(void *addr, unsigned long src);
 #define __data20_write_long(addr,src) _data20_write_long(addr,src)
 
-#define _data20_read_long(addr) \
-({ \
-        long __dst; \
-        unsigned int __tmp; \
-	unsigned long __addr = addr; \
-	__asm__ __volatile__ ( \
-	"movx.a %2, %1 \n\t" \
-	"mov.w  0(%1), %L0 \n\t" \
-	"mov.w  2(%1), %H0" \
-	: "=r"((long) __dst), "=&r"((unsigned int) __tmp) \
-	: "m"((unsigned long) __addr) \
-	); \
-	__dst ; \
-})
-
+unsigned long _data20_read_long(void *addr);
 #define __data20_read_long(addr) _data20_read_long(addr)
 
 #define _low_power_mode_0() _bis_SR_register(0x18)
@@ -249,8 +119,6 @@ unsigned int _swap_bytes(unsigned int x);
 #define _even_in_range(x,y) (x)
 #define __even_in_range(x,y) _even_in_range(x,y)
 
-/* Define some alternative names for the intrinsics, which have been used 
-   in the various versions of IAR and GCC */
 #define __no_operation()                    _no_operation()
 
 #define __get_interrupt_state()             _get_interrupt_state()
