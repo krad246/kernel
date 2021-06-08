@@ -12,6 +12,7 @@
  * includes
  ******************************************************************************/
 #include "sched.h"
+#include "idle.h"
 #include "thread.h"
 
 /*******************************************************************************
@@ -20,6 +21,8 @@
 typedef struct
 {
 	volatile k_thread_t *curr_thread;
+	volatile k_thread_t *next_thread;
+	k_thread_t *idle;
 
 	k_sched_interface_t *policy;
 	k_sched_interface_t *known_policies[K_SCHED_N_POLICY];

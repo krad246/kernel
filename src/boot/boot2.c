@@ -47,8 +47,8 @@ int main(void)
 	k_sched_init(K_SCHED_ROUND_ROBIN);
 
 	k_thread_id_t id;
-	k_thread_create(1, 256, &id);
-	k_thread_create(1, 256, &id);
+	k_thread_create(K_THREAD_PRIORITY(1), K_STACK_SIZE_TINY, &id);
+	k_thread_create(K_THREAD_PRIORITY(1), K_STACK_SIZE_TINY, &id);
 
 	k_thread_start(0, Init, &id);
 	k_thread_kill(0);

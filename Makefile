@@ -4,6 +4,7 @@
 CONFIG_MCU		:= msp430fr5994
 CONFIG_K_TIMER	:= timer0_a0 # todo - strip the 0 off timer when passing to build as TIMER_A0_BASE. this is the kernel timer macro used
 CONFIG_K_UART	:= usci_a0
+CONFIG_K_TRAP_STACK_SIZE := 128
 
 #-------------------------------------------------------------------------------
 # Toolchain definitions
@@ -45,7 +46,7 @@ ASM_EXTS		:= .S
 #-------------------------------------------------------------------------------
 # Cross compiler flags
 #-------------------------------------------------------------------------------
-OPT_FLAGS		= -O0 -g -g3 -gdwarf-3 -ggdb -gstrict-dwarf
+OPT_FLAGS		= -O2 -g -g3 -gdwarf-3 -ggdb -gstrict-dwarf
 WARN_FLAGS		= -Wall -Wunused -fverbose-asm
 ERRATA_FLAGS	= cpu4,cpu8,cpu11,cpu12,cpu13,cpu19
 SIZE_FLAGS		= -ffreestanding -nostartfiles -mtiny-printf -msmall
@@ -63,7 +64,8 @@ CFLAGS			:= -mmcu=$(CONFIG_MCU) $(OPT_FLAGS) $(WARN_FLAGS) \
 					$(addprefix -I, $(INCDIRS)) -MMD -MP \
 					-DCONFIG_K_TIMER=$(call k_device_name, $(CONFIG_K_TIMER)) \
 					-DCONFIG_K_UART=$(call k_device_name, $(CONFIG_K_UART)) \
-					-DCPU_TRAP_STACK_SIZE=128
+					-DCONFIG_K_TRAP_STACK_SIZE=$(CONFIG_K_TRAP_STACK_SIZE)
+					
 ASFLAGS			:= $(CFLAGS) -x assembler-with-cpp -Wa,-mP -Wa,-mn
 LDFLAGS			:= -flto -Wl,-Map=$(APP).map -Wl,--gc-sections -Wl,--no-relax
 

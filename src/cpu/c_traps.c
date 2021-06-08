@@ -98,7 +98,7 @@ void cpu_trap(unsigned int tnum)
 
     if (g_cpu_trap_table_p != NULL)
     {
-        cpu_trap_handler_t *handler = &(*g_cpu_trap_table_p)[tnum];
+        volatile cpu_trap_handler_t *handler = &(*g_cpu_trap_table_p)[tnum];
         if (handler->callback != NULL)
         {
             handler->callback(tnum, handler->args);

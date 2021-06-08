@@ -19,6 +19,13 @@ def main():
 
 		#include \"msp430.h\"
 		#include \"cpu_asm.S\"
+		#include \"memmodel.h\"
+
+;-------------------------------------------------------------------------------
+; defines
+;-------------------------------------------------------------------------------
+		
+		#define CPU_TRAP_STACK_SIZE (CONFIG_K_TRAP_STACK_SIZE + CPU_STACK_SIZE_MIN)
 
 ;-------------------------------------------------------------------------------
 ; MSP430 interrupt handler installation

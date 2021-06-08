@@ -15,6 +15,7 @@
 #define NORETURN __attribute__((noreturn))
 #define WEAK __attribute__((weak))
 #define PACKED __attribute__((packed))
+#define NAKED __attribue__((naked))
 
 #define KERNEL_CODE
 

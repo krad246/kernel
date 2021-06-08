@@ -13,23 +13,22 @@
  ******************************************************************************/
 #include <stddef.h>
 #include "attributes.h"
-
-#if defined(SCHED_C_) || defined(THREAD_C_)
-	#include "memmodel.h"
-#endif
+#include "memmodel.h"
 
 typedef int k_status_code_t;
 
 /*******************************************************************************
  * defines
  ******************************************************************************/
-#define K_THREAD_SELF ({ k_thread_current(); })
+#define K_THREAD_PRIORITY(x)    ((x) & 0xFF)
+#define K_THREAD_SELF           ({ k_thread_current(); })
 
 typedef void k_thread_arg_t;
 typedef k_status_code_t (*k_thread_entry_t)(k_thread_arg_t *);
 
 typedef unsigned int k_thread_id_t;
 
+#define K_STACK_SIZE_MIN     (CPU_STACK_SIZE_MIN)
 #define K_STACK_SIZE_TINY    (2 * K_STACK_SIZE_MIN)
 #define K_STACK_SIZE_SMALL   (2 * K_STACK_SIZE_TINY)
 #define K_STACK_SIZE_MEDIUM  (2 * K_STACK_SIZE_SMALL)
@@ -74,7 +73,7 @@ EXTERN k_status_code_t k_thread_suspend(k_thread_id_t id);
 EXTERN k_status_code_t k_thread_resume(k_thread_id_t id);
 EXTERN k_status_code_t k_thread_restart(k_thread_id_t id, k_thread_arg_t *args);
 EXTERN k_status_code_t k_thread_kill(k_thread_id_t id);
-EXTERN NORETURN void k_thread_exit(int ret);
+EXTERN NORETURN void k_thread_exit(k_status_code_t ret);
 
 EXTERN k_thread_id_t k_thread_current(void);
 

@@ -62,14 +62,14 @@ STATIC int k_init_thread_stack(k_thread_t *this, void *pc, void *arg)
 }
 
 // TODO: make this public somewhere
-#define K_STACK_SIZE_MIN     (sizeof(k_thread_context_t))
+
 
 /*******************************************************************************
  * public functions
  ******************************************************************************/
 k_status_code_t k_thread_create(unsigned int priority, size_t stack_size, k_thread_id_t *id)
 {
-    if ((priority == 0) || (id == NULL))
+    if ((priority == 0))
     {
         return -1;
     }
@@ -102,7 +102,11 @@ k_status_code_t k_thread_create(unsigned int priority, size_t stack_size, k_thre
     k_sched_job_create(the_thread, priority);
 
     /* assign the ID */
-    *id = g_kern_assign_id;
+    if (id != NULL)
+    {
+        *id = g_kern_assign_id;
+    }
+
     the_thread->id = g_kern_assign_id;
     g_kern_assign_id++;
 
@@ -118,7 +122,10 @@ k_status_code_t k_thread_start(k_thread_id_t id, k_thread_entry_t entry, k_threa
         return -1;
     }
 
+    cpu_enter_critical();
     k_thread_t *the_thread = k_sched_lkup_by_id(id);
+    cpu_exit_critical();
+
     if (the_thread == NULL)
     {
         return -1;
@@ -137,7 +144,10 @@ k_status_code_t k_thread_start(k_thread_id_t id, k_thread_entry_t entry, k_threa
 
 k_status_code_t k_thread_suspend(k_thread_id_t id)
 {
+    cpu_enter_critical();
     k_thread_t *the_thread = k_sched_lkup_by_id(id);
+    cpu_exit_critical();
+
     if (the_thread == NULL)
     {
         return -1;
@@ -145,17 +155,26 @@ k_status_code_t k_thread_suspend(k_thread_id_t id)
 
     cpu_enter_critical();
 
+    if (id == K_THREAD_SELF)
+    {
+        k_sched_job_yield();
+    }
+
     k_sched_job_suspend(the_thread);
-//    k_thread_yield();
 
     cpu_exit_critical();
+
+    cpu_yield();
 
     return 0;
 }
 
 k_status_code_t k_thread_resume(k_thread_id_t id)
 {
+    cpu_enter_critical();
     k_thread_t *the_thread = k_sched_lkup_by_id(id);
+    cpu_exit_critical();
+
     if (the_thread == NULL)
     {
         return -1;
@@ -172,7 +191,11 @@ k_status_code_t k_thread_resume(k_thread_id_t id)
 
 k_status_code_t k_thread_restart(k_thread_id_t id, k_thread_arg_t *args)
 {
+    cpu_enter_critical();
     k_thread_t *the_thread = k_sched_lkup_by_id(id);
+    k_thread_entry_t entry_point = the_thread->entry;
+    cpu_exit_critical();
+
     if (the_thread == NULL)
     {
         return -1;
@@ -180,7 +203,9 @@ k_status_code_t k_thread_restart(k_thread_id_t id, k_thread_arg_t *args)
 
     cpu_enter_critical();
 
-    k_init_thread_stack(the_thread, the_thread->entry, args);
+    k_thread_kill(id);
+    k_thread_create(id, the_thread->stack_mem_size, &id);
+    k_thread_start(id, entry_point, args);
 
     cpu_exit_critical();
 
@@ -189,7 +214,10 @@ k_status_code_t k_thread_restart(k_thread_id_t id, k_thread_arg_t *args)
 
 k_status_code_t k_thread_kill(k_thread_id_t id)
 {
+    cpu_enter_critical();
     k_thread_t *the_thread = k_sched_lkup_by_id(id);
+    cpu_exit_critical();
+
     if (the_thread == NULL)
     {
         return -1;
@@ -197,27 +225,28 @@ k_status_code_t k_thread_kill(k_thread_id_t id)
 
     cpu_enter_critical();
 
-    if (id == K_THREAD_SELF)
+    if (id != K_THREAD_SELF)
     {
-        k_sched_job_next();
+        /* deallocate data */
+        free(the_thread);
+        free(the_thread->stack_mem);
+    } else
+    {
+        k_sched_job_yield();
     }
 
     k_sched_job_delete(the_thread);
-
-    /* deallocate data */
-	free(the_thread);
-	free(the_thread->stack_mem);
 
     cpu_exit_critical();
 
     return 0;
 }
 
-void k_thread_exit(int ret)
+NORETURN void k_thread_exit(k_status_code_t ret)
 {
     k_thread_kill(K_THREAD_SELF);
 
-    // TODO: bring the return value into the thread
+    while (1);
 }
 
 k_thread_id_t k_thread_current(void)

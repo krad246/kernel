@@ -23,7 +23,6 @@
 #define K_JOB_PAUSE_METADATA(x) CONTAINER_OF((x), k_job_pause_metadata_t, entry)
 #define K_JOB_CREATE_METADATA(x) CONTAINER_OF((x), k_job_create_metadata_t, entry)
 #define K_JOB_METADATA(x) CONTAINER_OF(K_JOB_RUN_METADATA(x), k_job_metadata_t, run)
-#define K_JOB_LIST_ENTRY(x) ({ &K_JOB_METADATA(x)->run.entry; })
 #define K_JOB_THREAD(x) K_JOB_METADATA(x)->run.thread
 #define K_JOB_STATE(x) K_JOB_METADATA(x)->state
 
