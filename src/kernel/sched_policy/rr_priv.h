@@ -26,7 +26,7 @@
 #define K_JOB_THREAD(x) K_JOB_METADATA(x)->run.thread
 #define K_JOB_STATE(x) K_JOB_METADATA(x)->state
 
-typedef enum  
+typedef enum
 {
 	K_JOB_RUNNING,
 	K_JOB_PAUSED,
@@ -36,26 +36,25 @@ typedef enum
 /*******************************************************************************
  * data strucutres
  ******************************************************************************/
-typedef struct 
+typedef struct
 {
-	k_thread_t	*thread;		/* pointer to owned thread */
+	k_thread_t *thread; /* pointer to owned thread */
 
-	unsigned int init_prio;		/* thread initial priority */
+	unsigned int init_prio; /* thread initial priority */
 
-	unsigned int n_slices;		/* working priority data (for priority inheritance protocol and scheduling) */
+	unsigned int n_slices; /* working priority data (for priority inheritance protocol and scheduling) */
 	unsigned int n_slices_used;
 
 	clist_node_t entry;
 } k_job_run_metadata_t;
 
-
-typedef struct 
+typedef struct
 {
-	k_thread_t	*thread;		/* pointer to owned thread */
+	k_thread_t *thread; /* pointer to owned thread */
 
-	unsigned int init_prio;		/* thread initial priority */
+	unsigned int init_prio; /* thread initial priority */
 
-	unsigned int unused[2];		/* dummy data to map struct onto k_job_run_node_t */
+	unsigned int unused[2]; /* dummy data to map struct onto k_job_run_node_t */
 
 	clist_node_t entry;
 } k_job_pause_metadata_t;
@@ -66,11 +65,11 @@ typedef struct
 {
 	k_job_status_t state;
 
-	union 
+	union
 	{
-		k_job_run_metadata_t 		run;
-		k_job_create_metadata_t 	create;
-		k_job_pause_metadata_t 		pause;
+		k_job_run_metadata_t run;
+		k_job_create_metadata_t create;
+		k_job_pause_metadata_t pause;
 	};
 
 } k_job_metadata_t;
@@ -102,24 +101,22 @@ EXTERN k_thread_t *k_rr_job_find(k_thread_id_t);
  * file-scope globals
  ******************************************************************************/
 STATIC k_round_robin_policy_t g_kern_rr_interface =
-{
-	.interface = 
 	{
-		.init = k_rr_init,
+		.interface =
+			{
+				.init = k_rr_init,
 
-		.start = k_rr_job_start,
-		.pause = k_rr_job_pause,
-		.resume = k_rr_job_resume,
-		.restart = k_rr_job_restart,
+				.start = k_rr_job_start,
+				.pause = k_rr_job_pause,
+				.resume = k_rr_job_resume,
+				.restart = k_rr_job_restart,
 
-		.create = k_rr_job_create,
-		.kill = k_rr_job_kill,
+				.create = k_rr_job_create,
+				.kill = k_rr_job_kill,
 
-		.next = k_rr_job_next,
-		.yield = k_rr_job_yield,
+				.next = k_rr_job_next,
+				.yield = k_rr_job_yield,
 
-		.find = k_rr_job_find
-	}
-};
+				.find = k_rr_job_find}};
 
-k_sched_interface_t *g_kern_rr_policy = (k_sched_interface_t *) &g_kern_rr_interface;
+k_sched_interface_t *g_kern_rr_policy = (k_sched_interface_t *)&g_kern_rr_interface;

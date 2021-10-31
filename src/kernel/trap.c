@@ -18,22 +18,21 @@
  ******************************************************************************/
 STATIC bool k_is_legal_trap(unsigned int tnum)
 {
-    return IN_RANGE(K_MIN_VALID_TRAP_NUM, tnum, K_MAX_VALID_TRAP_NUM);
+	return IN_RANGE(K_MIN_VALID_TRAP_NUM, tnum, K_MAX_VALID_TRAP_NUM);
 }
-
 
 STATIC bool k_is_rsvd_trap(unsigned int tnum)
 {
-    unsigned int i;
-    for (i = 0; i < ARRAY_SIZE(g_kern_rsvd_traps); i++)
-    {
-        if (g_kern_rsvd_traps[i] == tnum)
-        {
-            return true;
-        }
-    }
+	unsigned int i;
+	for (i = 0; i < ARRAY_SIZE(g_kern_rsvd_traps); i++)
+	{
+		if (g_kern_rsvd_traps[i] == tnum)
+		{
+			return true;
+		}
+	}
 
-    return false;
+	return false;
 }
 
 /*******************************************************************************
@@ -41,40 +40,40 @@ STATIC bool k_is_rsvd_trap(unsigned int tnum)
  ******************************************************************************/
 int k_traps_init(void)
 {
-    return cpu_traps_init((void *) &g_kern_trap_table);
+	return cpu_traps_init((void *)&g_kern_trap_table);
 }
 
 int k_trap_connect(unsigned int tnum, k_trap_callback_t callback, k_trap_args_t *args)
 {
-    if (!k_is_legal_trap(tnum))
-    {
-        return -1;
-    }
+	if (!k_is_legal_trap(tnum))
+	{
+		return -1;
+	}
 
-    if (k_is_rsvd_trap(tnum))
-    {
-        return -1;
-    }
+	if (k_is_rsvd_trap(tnum))
+	{
+		return -1;
+	}
 
-    return cpu_install_handler(tnum, callback, args);
+	return cpu_install_handler(tnum, callback, args);
 }
 
 int k_trap_disconnect(unsigned int tnum)
 {
-    if (!k_is_legal_trap(tnum))
-    {
-        return -1;
-    }
+	if (!k_is_legal_trap(tnum))
+	{
+		return -1;
+	}
 
-    if (k_is_rsvd_trap(tnum))
-    {
-        return -1;
-    }
+	if (k_is_rsvd_trap(tnum))
+	{
+		return -1;
+	}
 
-    return cpu_remove_handler(tnum);
+	return cpu_remove_handler(tnum);
 }
 
 volatile bool k_trap_in_progress(void)
 {
-    return cpu_trap_in_progress();
+	return cpu_trap_in_progress();
 }

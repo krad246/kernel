@@ -20,43 +20,43 @@ typedef int k_status_code_t;
 /*******************************************************************************
  * defines
  ******************************************************************************/
-#define K_THREAD_PRIORITY(x)    ((x) & 0xFF)
-#define K_THREAD_SELF           ({ k_thread_current(); })
+#define K_THREAD_PRIORITY(x) ((x)&0xFF)
+#define K_THREAD_SELF ({ k_thread_current(); })
 
 typedef void k_thread_arg_t;
 typedef k_status_code_t (*k_thread_entry_t)(k_thread_arg_t *);
 
 typedef unsigned int k_thread_id_t;
 
-#define K_STACK_SIZE_MIN     (CPU_STACK_SIZE_MIN)
-#define K_STACK_SIZE_TINY    (2 * K_STACK_SIZE_MIN)
-#define K_STACK_SIZE_SMALL   (2 * K_STACK_SIZE_TINY)
-#define K_STACK_SIZE_MEDIUM  (2 * K_STACK_SIZE_SMALL)
-#define K_STACK_SIZE_LARGE   (2 * K_STACK_SIZE_MEDIUM)
+#define K_STACK_SIZE_MIN (CPU_STACK_SIZE_MIN)
+#define K_STACK_SIZE_TINY (2 * K_STACK_SIZE_MIN)
+#define K_STACK_SIZE_SMALL (2 * K_STACK_SIZE_TINY)
+#define K_STACK_SIZE_MEDIUM (2 * K_STACK_SIZE_SMALL)
+#define K_STACK_SIZE_LARGE (2 * K_STACK_SIZE_MEDIUM)
 
 /*******************************************************************************
  * data structures
  ******************************************************************************/
 #if defined(SCHED_C_) || defined(THREAD_C_)
-    typedef struct PACKED
-    {
-        cpu_sw_context_t    sw_ctx;
-        cpu_hw_context_t    hw_ctx;
-    } k_thread_context_t;
+typedef struct PACKED
+{
+	cpu_sw_context_t sw_ctx;
+	cpu_hw_context_t hw_ctx;
+} k_thread_context_t;
 
-    typedef struct
-    {
-        k_thread_entry_t    entry;
+typedef struct
+{
+	k_thread_entry_t entry;
 
-        k_thread_context_t  *sp;
+	k_thread_context_t *sp;
 
-        void                *stack_mem;
-        size_t              stack_mem_size;
+	void *stack_mem;
+	size_t stack_mem_size;
 
-        void                *state;
+	void *state;
 
-        k_thread_id_t       id;
-    } k_thread_t;
+	k_thread_id_t id;
+} k_thread_t;
 #endif
 
 typedef struct

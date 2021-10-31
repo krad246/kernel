@@ -19,7 +19,7 @@
 /*******************************************************************************
  * defines
  ******************************************************************************/
-#define CPU_TRAPS_ENABLED 	(GIE)
+#define CPU_TRAPS_ENABLED (GIE)
 #define CPU_TRAP_STACK_SIZE (128)
 
 typedef void cpu_trap_args_t;
@@ -29,15 +29,15 @@ typedef void (*cpu_trap_callback_t)(unsigned int, cpu_trap_args_t *);
  * data structures
  ******************************************************************************/
 #if defined(C_TRAPS_C_) || defined(TRAP_C_)
-	typedef struct
-	{
-		volatile cpu_trap_callback_t callback;
-		volatile cpu_trap_args_t *args;
-	} cpu_trap_handler_t;
+typedef struct
+{
+	volatile cpu_trap_callback_t callback;
+	volatile cpu_trap_args_t *args;
+} cpu_trap_handler_t;
 
-	typedef cpu_trap_handler_t cpu_trap_table_t[CPU_N_TRAPS];
+typedef cpu_trap_handler_t cpu_trap_table_t[CPU_N_TRAPS];
 
-	EXTERN volatile unsigned char g_cpu_trap_stack[CPU_TRAP_STACK_SIZE];
+EXTERN volatile unsigned char g_cpu_trap_stack[CPU_TRAP_STACK_SIZE];
 #endif
 
 /*******************************************************************************

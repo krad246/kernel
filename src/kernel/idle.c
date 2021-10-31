@@ -18,10 +18,10 @@
  ******************************************************************************/
 k_status_code_t k_idle(k_thread_arg_t *unused)
 {
-    while (1)
-    {
-        cpu_idle();
-    }
+	while (1)
+	{
+		cpu_idle();
+	}
 
-    return 0;
+	return 0;
 }

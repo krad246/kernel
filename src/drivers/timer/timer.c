@@ -5,14 +5,14 @@
  *      Author: krad2
  */
 
-// TODO: autogenerate the timer memory map from the symbols linker script 
+// TODO: autogenerate the timer memory map from the symbols linker script
 
 typedef struct
 {
 
 } timer_t;
 
-// create an enum from all the timerAs available 
+// create an enum from all the timerAs available
 
 //int timer_init(tim_t dev, uint32_t freq, timer_cb_t cb, void *arg)
 //{
@@ -82,4 +82,3 @@ typedef struct
 //    (void)dev;
 //    TIMER_BASE->CTL &= ~(TIMER_CTL_MC_MASK);
 //}
-

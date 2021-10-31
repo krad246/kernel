@@ -18,7 +18,7 @@
  ******************************************************************************/
 int k_thread_matches_id(const clist_node_t *node, void *id)
 {
-	return (int) (K_JOB_THREAD(node)->id == *((k_thread_id_t *) id));
+	return (int)(K_JOB_THREAD(node)->id == *((k_thread_id_t *)id));
 }
 
 k_thread_t *k_rr_queue_search(clist_t *queue, k_thread_id_t id)
@@ -141,7 +141,7 @@ k_status_code_t k_rr_job_restart(k_thread_t *thread)
 
 k_status_code_t k_rr_job_create(k_thread_t *thread, unsigned int prio)
 {
-    /* brand new thread needs data allocated */
+	/* brand new thread needs data allocated */
 	if (thread->state == NULL)
 	{
 		thread->state = malloc(sizeof(k_job_metadata_t));
@@ -179,29 +179,29 @@ k_status_code_t k_rr_job_kill(k_thread_t *thread)
 
 k_thread_t *k_rr_job_next(k_thread_t *thread)
 {
-    clist_node_t *node = thread->state;
+	clist_node_t *node = thread->state;
 
-    K_JOB_METADATA(node)->run.n_slices_used++;
+	K_JOB_METADATA(node)->run.n_slices_used++;
 
-    /* out of budget */
-    if (K_JOB_METADATA(node)->run.n_slices_used >= K_JOB_METADATA(node)->run.n_slices)
-    {
+	/* out of budget */
+	if (K_JOB_METADATA(node)->run.n_slices_used >= K_JOB_METADATA(node)->run.n_slices)
+	{
 
-        K_JOB_METADATA(node)->run.n_slices_used = 0;
-        return K_JOB_THREAD(node->next);
-
-    } else
-    {
-        return thread;
-    }
+		K_JOB_METADATA(node)->run.n_slices_used = 0;
+		return K_JOB_THREAD(node->next);
+	}
+	else
+	{
+		return thread;
+	}
 }
 
 k_thread_t *k_rr_job_yield(k_thread_t *thread)
 {
-    clist_node_t *node = thread->state;
+	clist_node_t *node = thread->state;
 
-    /* exhaust the budget */
-    K_JOB_METADATA(node)->run.n_slices_used = K_JOB_METADATA(node)->run.n_slices;
+	/* exhaust the budget */
+	K_JOB_METADATA(node)->run.n_slices_used = K_JOB_METADATA(node)->run.n_slices;
 	return k_rr_job_next(thread);
 }
 

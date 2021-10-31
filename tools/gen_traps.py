@@ -78,40 +78,7 @@ def main():
 				autogen.write("\t\t\tCPU_BAD_TRAP {}\n".format(vnum))
 
 			vnums.append(vnum)
-
-	# vnums = []
-	# lines = []
-	# line_to_parse = ''
-	# found_section_block = False
-	# for line in symbols:
-
-
-	# 	if "SECTIONS" not in line and not found_section_block:
-	# 		continue
-	# 	elif "SECTIONS" in line and not found_section_block:
-	# 		found_section_block = True
-	# 		continue
-	# 	elif "SECTIONS" not in line and found_section_block:
-	# 		pass
-	# 	else:
-	# 		raise Exception()
-		
-	# 	print(line)
-
-	# 	if linker_line_is_complete(line_to_parse):
-	# 		line_to_parse = ' '.join(lines)
-	# 		# print("fpo",line_to_parse)
-	# 	else:
-	# 		lines.append(line)
-	# 		line_to_parse = ' '.join(lines)
-	# 		continue
-
-
-
-	# 		if linker_line_is_complete(line_to_parse):
-	# 			line_to_parse = ''
-	# 			lines = []
-
+			
 	autogen.write(declarations)
 
 	for vnum in vnums:
@@ -123,20 +90,20 @@ def main():
 ; MSP430 interrupt declaration
 ;-------------------------------------------------------------------------------
 
-		PUBLIC(g_cpu_trap_sp)			; programmable stack pointer for CPU
+		PUBLIC(g_cpu_trap_sp)		; programmable stack pointer for CPU
 		PUBLIC(g_cpu_trap_stack)	; processor interrupt stack
 
 		.data
 
 g_cpu_trap_sp:
-	.word 0
+		.word 0
 
 g_cpu_trap_stack:
-	.space CPU_TRAP_STACK_SIZE
+		.space CPU_TRAP_STACK_SIZE
 """
 
 	autogen.write(cpu_vars)
-	autogen.write("\n\t\t\t.end\n")
+	autogen.write("\n\t\t.end\n")
 	
 if __name__ == "__main__":
 	main()

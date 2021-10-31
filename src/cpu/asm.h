@@ -16,9 +16,9 @@
  * defines
  ******************************************************************************/
 #ifdef __ASSEMBLER__
-#define SYM(sym)      sym
-#define PUBLIC(sym)   .globl SYM (sym)
-#define EXTERN(sym)   .globl SYM (sym)
+#define SYM(sym) sym
+#define PUBLIC(sym) .globl SYM(sym)
+#define EXTERN(sym) .globl SYM(sym)
 #endif
 
 #endif /* ASM_H_ */

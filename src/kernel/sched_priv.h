@@ -34,15 +34,13 @@ typedef struct
 EXTERN k_sched_interface_t *g_kern_rr_policy;
 
 STATIC k_sched_t g_kern_sched =
-{
-	.curr_thread = NULL,
-	.policy = NULL,
-	.known_policies = 
 	{
-		NULL,
-		NULL,
-		NULL
-	}
-};
+		.curr_thread = NULL,
+		.policy = NULL,
+		.known_policies =
+			{
+				NULL,
+				NULL,
+				NULL}};
 
 #endif

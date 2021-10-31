@@ -15,5 +15,5 @@
  * globals
  ******************************************************************************/
 #if defined(SCHED_C_)
-	EXTERN k_sched_interface_t *g_kern_rr_policy;
+EXTERN k_sched_interface_t *g_kern_rr_policy;
 #endif

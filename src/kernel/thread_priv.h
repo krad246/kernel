@@ -26,7 +26,7 @@
  * defines
  ******************************************************************************/
 #define K_THREAD_STACK_BOTTOM(this) ((this)->stack_mem + (this)->stack_mem_size)
-#define K_MEM_UNUSED_PTRN           (0x5A)
+#define K_MEM_UNUSED_PTRN (0x5A)
 
 /*******************************************************************************
  * data structures

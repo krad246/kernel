@@ -1,10 +1,10 @@
 #-------------------------------------------------------------------------------
 # Build parameters
 #-------------------------------------------------------------------------------
-CONFIG_MCU		:= msp430fr5994
-CONFIG_K_TIMER	:= timer0_a0 # todo - strip the 0 off timer when passing to build as TIMER_A0_BASE. this is the kernel timer macro used
-CONFIG_K_UART	:= usci_a0
-CONFIG_K_TRAP_STACK_SIZE := 128
+CONFIG_MCU					:= msp430fr5994
+CONFIG_K_TIMER				:= timer0_a0 
+CONFIG_K_UART				:= usci_a0
+CONFIG_K_TRAP_STACK_SIZE 	:= 128
 
 #-------------------------------------------------------------------------------
 # Toolchain definitions

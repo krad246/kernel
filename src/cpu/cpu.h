@@ -11,19 +11,21 @@
 #include <msp430.h>
 #include "attributes.h"
 
+#define CPU_FREQ
+
 WEAK void cpu_idle(void)
 {
-    __low_power_mode_3();
+	__low_power_mode_0();
 }
 
 WEAK void cpu_yield(void)
 {
-//        t
+	//        t
 }
 
 WEAK void cpu_restart(void)
 {
-//        wdog_violate();
+	//        wdog_violate();
 }
 
 #endif /* CPU_H_ */

@@ -48,13 +48,13 @@ k_status_code_t k_sched_job_start(k_thread_t *thread)
 
 k_status_code_t k_sched_job_suspend(k_thread_t *thread)
 {
-    if (thread == g_kern_sched.next_thread)
-    {
-        k_sched_job_yield();
-    }
+	if (thread == g_kern_sched.next_thread)
+	{
+		k_sched_job_yield();
+	}
 
 	return g_kern_sched.policy->pause(thread);
-}	
+}
 
 k_status_code_t k_sched_job_resume(k_thread_t *thread)
 {
@@ -73,22 +73,22 @@ k_status_code_t k_sched_job_create(k_thread_t *thread, unsigned int prio)
 
 k_status_code_t k_sched_job_delete(k_thread_t *thread)
 {
-    if (thread == g_kern_sched.next_thread)
-    {
-        k_sched_job_yield();
-    }
+	if (thread == g_kern_sched.next_thread)
+	{
+		k_sched_job_yield();
+	}
 
 	return g_kern_sched.policy->kill(thread);
 }
 
 void k_sched_job_next(void)
 {
-	g_kern_sched.next_thread = (volatile k_thread_t *) g_kern_sched.policy->next((k_thread_t *) g_kern_sched.curr_thread);
+	g_kern_sched.next_thread = (volatile k_thread_t *)g_kern_sched.policy->next((k_thread_t *)g_kern_sched.curr_thread);
 }
-	
+
 void k_sched_job_yield(void)
 {
-    g_kern_sched.next_thread = (volatile k_thread_t *) g_kern_sched.policy->yield((k_thread_t *) g_kern_sched.curr_thread);
+	g_kern_sched.next_thread = (volatile k_thread_t *)g_kern_sched.policy->yield((k_thread_t *)g_kern_sched.curr_thread);
 }
 
 k_thread_t *k_sched_lkup_by_id(k_thread_id_t id)
@@ -103,7 +103,6 @@ volatile k_thread_t *k_sched_current_job(void)
 
 bool k_sched_is_idle(void)
 {
-
 }
 
 // add a query function that calls rr.c

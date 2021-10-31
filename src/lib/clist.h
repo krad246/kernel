@@ -16,22 +16,22 @@ typedef struct
 {
 	clist_node_t *head;
 
-	size_t		count;
+	size_t count;
 } clist_t;
 
 static inline bool clist_is_empty(const clist_t *list)
 {
-    return list->count == 0;
+	return list->count == 0;
 }
 
 static inline bool clist_exactly_one(const clist_t *list)
 {
-    return !clist_is_empty(list) && (CLIST_HEAD(list) == CLIST_TAIL(list));
+	return !clist_is_empty(list) && (CLIST_HEAD(list) == CLIST_TAIL(list));
 }
 
 static inline bool clist_more_than_one(const clist_t *list)
 {
-    return !clist_is_empty(list) && (CLIST_HEAD(list) != CLIST_TAIL(list));
+	return !clist_is_empty(list) && (CLIST_HEAD(list) != CLIST_TAIL(list));
 }
 
 static inline void clist_rpush(clist_t *list, clist_node_t *new_node)
@@ -53,7 +53,6 @@ static inline void clist_rpush(clist_t *list, clist_node_t *new_node)
 
 		list->count++;
 	}
-
 }
 
 static inline void clist_lpush(clist_t *list, clist_node_t *new_node)
@@ -66,8 +65,8 @@ static inline void clist_lpush(clist_t *list, clist_node_t *new_node)
 		CLIST_HEAD(list)->prev = new_node;
 
 		CLIST_TAIL(list) = new_node;
-        CLIST_TAIL(list)->next = new_node;
-        CLIST_TAIL(list)->prev = new_node;
+		CLIST_TAIL(list)->next = new_node;
+		CLIST_TAIL(list)->prev = new_node;
 
 		list->count = 1;
 	}
@@ -101,7 +100,7 @@ static inline clist_node_t *clist_lpop(clist_t *list)
 	}
 
 	/* Otherwise: head slides forward */
-	else 
+	else
 	{
 		clist_node_t *head = CLIST_HEAD(list);
 		clist_node_t *new_head = head->next;
@@ -115,10 +114,10 @@ static inline clist_node_t *clist_lpop(clist_t *list)
 
 static inline void clist_lpoprpush(clist_t *list)
 {
-    if (CLIST_HEAD(list) != NULL) 
+	if (CLIST_HEAD(list) != NULL)
 	{
-        CLIST_HEAD(list) = CLIST_HEAD(list)->next;
-    }
+		CLIST_HEAD(list) = CLIST_HEAD(list)->next;
+	}
 }
 
 static inline clist_node_t *clist_lpeek(const clist_t *list)
@@ -128,7 +127,7 @@ static inline clist_node_t *clist_lpeek(const clist_t *list)
 
 static inline clist_node_t *clist_rpeek(const clist_t *list)
 {
-    return CLIST_TAIL(list);
+	return CLIST_TAIL(list);
 }
 
 static inline clist_node_t *clist_rpop(clist_t *list)
@@ -150,7 +149,7 @@ static inline clist_node_t *clist_rpop(clist_t *list)
 	}
 
 	/* Otherwise: tail slides backward */
-	else 
+	else
 	{
 		clist_node_t *tail = CLIST_TAIL(list);
 		clist_node_t *new_tail = tail->prev;
@@ -163,7 +162,7 @@ static inline clist_node_t *clist_rpop(clist_t *list)
 }
 
 static inline clist_node_t *clist_find(const clist_t *list,
-                                       const clist_node_t *node)
+									   const clist_node_t *node)
 {
 
 	if (clist_is_empty(list))
@@ -178,13 +177,13 @@ static inline clist_node_t *clist_find(const clist_t *list,
 			return CLIST_HEAD(list);
 		}
 
-		else 
+		else
 		{
 			return NULL;
 		}
 	}
 
-	else 
+	else
 	{
 		clist_node_t *pos = CLIST_HEAD(list);
 		while (pos != CLIST_TAIL(list))
@@ -196,14 +195,13 @@ static inline clist_node_t *clist_find(const clist_t *list,
 
 			pos = pos->next;
 		}
-
 	}
 
-    return NULL;
+	return NULL;
 }
 
 static inline clist_node_t *clist_find_before(const clist_t *list,
-                                              const clist_node_t *node)
+											  const clist_node_t *node)
 {
 	return clist_find(list, node)->prev;
 }
@@ -220,11 +218,11 @@ static inline clist_node_t *clist_remove_at(clist_t *list, clist_node_t *node)
 		return clist_rpop(list);
 	}
 
-	else 
+	else
 	{
 		dlist_remove(node);
 		list->count--;
-		
+
 		return node;
 	}
 }
@@ -237,37 +235,35 @@ static inline clist_node_t *clist_remove(clist_t *list, clist_node_t *node)
 		return NULL;
 	}
 
-	else 
+	else
 	{
 		return clist_remove_at(list, to_remove);
 	}
 }
 
-static inline clist_node_t *clist_foreach(clist_t *list, int (*func)(const clist_node_t *,  void *), void *arg)
+static inline clist_node_t *clist_foreach(clist_t *list, int (*func)(const clist_node_t *, void *), void *arg)
 {
-    clist_node_t *node = CLIST_TAIL(list);
+	clist_node_t *node = CLIST_TAIL(list);
 
-    if (node != NULL) 
+	if (node != NULL)
 	{
-        do
-        {
-            if (func(node, arg))
-            {
-                return node;
-            }
+		do
+		{
+			if (func(node, arg))
+			{
+				return node;
+			}
 
-            node = node->next;
-        } while (node != CLIST_TAIL(list));
+			node = node->next;
+		} while (node != CLIST_TAIL(list));
 	}
 
-    return NULL;
+	return NULL;
 }
 
 static inline size_t clist_count(const clist_t *list)
 {
-    return list->count;
+	return list->count;
 }
-
-
 
 #endif

@@ -59,9 +59,9 @@ void _bis_SR_register(unsigned int x);
 void _bic_SR_register(unsigned int x);
 
 void __bic_SR_register_on_exit(unsigned int x);
-#define _bic_SR_register_on_exit(x)        __bic_SR_register_on_exit(x)
+#define _bic_SR_register_on_exit(x) __bic_SR_register_on_exit(x)
 void __bis_SR_register_on_exit(unsigned int x);
-#define _bis_SR_register_on_exit(x)        __bis_SR_register_on_exit(x)
+#define _bis_SR_register_on_exit(x) __bis_SR_register_on_exit(x)
 
 unsigned int _get_SR_register(void);
 
@@ -74,30 +74,30 @@ void _set_SP_register(void *x);
 unsigned int _swap_bytes(unsigned int x);
 
 unsigned short _bcd_add_short(unsigned short x, unsigned short y);
-#define __bcd_add_short(x,y) _bcd_add_short(x,y)
+#define __bcd_add_short(x, y) _bcd_add_short(x, y)
 unsigned long _bcd_add_long(unsigned long x, unsigned long y);
-#define __bcd_add_long(x,y) _bcd_add_long(x,y)
+#define __bcd_add_long(x, y) _bcd_add_long(x, y)
 
 void _data16_write_addr(void *addr, unsigned int src);
-#define __data16_write_addr(addr,src) _data16_write_addr(addr,src)
+#define __data16_write_addr(addr, src) _data16_write_addr(addr, src)
 
 unsigned int _data16_read_addr(void *addr, unsigned int src);
 #define __data16_read_addr(addr) _data16_read_addr(addr)
 
 void _data20_write_char(void *addr, unsigned char src);
-#define __data20_write_char(addr,src) _data20_write_char(addr,src)
+#define __data20_write_char(addr, src) _data20_write_char(addr, src)
 
 unsigned char _data20_read_char(void *addr);
 #define __data20_read_char(addr) _data20_read_char(addr)
 
 void _data20_write_short(void *addr, unsigned short src);
-#define __data20_write_short(addr,src) _data20_write_short(addr,src)
+#define __data20_write_short(addr, src) _data20_write_short(addr, src)
 
 void _data20_read_short(void *addr);
 #define __data20_read_short(addr) _data20_read_short(addr)
 
 void _data20_write_long(void *addr, unsigned long src);
-#define __data20_write_long(addr,src) _data20_write_long(addr,src)
+#define __data20_write_long(addr, src) _data20_write_long(addr, src)
 
 unsigned long _data20_read_long(void *addr);
 #define __data20_read_long(addr) _data20_read_long(addr)
@@ -116,40 +116,40 @@ unsigned long _data20_read_long(void *addr);
 #define __low_power_mode_4() _low_power_mode_4()
 #define __low_power_mode_off_on_exit() _low_power_mode_off_on_exit()
 
-#define _even_in_range(x,y) (x)
-#define __even_in_range(x,y) _even_in_range(x,y)
+#define _even_in_range(x, y) (x)
+#define __even_in_range(x, y) _even_in_range(x, y)
 
-#define __no_operation()                    _no_operation()
+#define __no_operation() _no_operation()
 
-#define __get_interrupt_state()             _get_interrupt_state()
-#define __set_interrupt_state(x)            _set_interrupt_state(x)
-#define __enable_interrupt()                _enable_interrupts()
-#define __disable_interrupt()               _disable_interrupts()
+#define __get_interrupt_state() _get_interrupt_state()
+#define __set_interrupt_state(x) _set_interrupt_state(x)
+#define __enable_interrupt() _enable_interrupts()
+#define __disable_interrupt() _disable_interrupts()
 
-#define __bic_SR_register(x)                _bic_SR_register(x)
-#define __bis_SR_register(x)                _bis_SR_register(x)
-#define __get_SR_register()                 _get_SR_register()
+#define __bic_SR_register(x) _bic_SR_register(x)
+#define __bis_SR_register(x) _bis_SR_register(x)
+#define __get_SR_register() _get_SR_register()
 
-#define __swap_bytes(x)                     _swap_bytes(x)
+#define __swap_bytes(x) _swap_bytes(x)
 
-#define __nop()                             _no_operation()
+#define __nop() _no_operation()
 
-#define __eint()                            _enable_interrupts()
-#define __dint()                            _disable_interrupts()
+#define __eint() _enable_interrupts()
+#define __dint() _disable_interrupts()
 
-#define _NOP()                              _no_operation()
-#define _EINT()                             _enable_interrupts()
-#define _DINT()                             _disable_interrupts()
+#define _NOP() _no_operation()
+#define _EINT() _enable_interrupts()
+#define _DINT() _disable_interrupts()
 
-#define _BIC_SR(x)                          _bic_SR_register(x)
-#define _BIC_SR_IRQ(x)                      _bic_SR_register_on_exit(x)
-#define _BIS_SR(x)                          _bis_SR_register(x)
-#define _BIS_SR_IRQ(x)                      _bis_SR_register_on_exit(x)
-#define _BIS_NMI_IE1(x)                     _bis_nmi_ie1(x)
+#define _BIC_SR(x) _bic_SR_register(x)
+#define _BIC_SR_IRQ(x) _bic_SR_register_on_exit(x)
+#define _BIS_SR(x) _bis_SR_register(x)
+#define _BIS_SR_IRQ(x) _bis_SR_register_on_exit(x)
+#define _BIS_NMI_IE1(x) _bis_nmi_ie1(x)
 
-#define _SWAP_BYTES(x)                      _swap_bytes(x)
+#define _SWAP_BYTES(x) _swap_bytes(x)
 
-#define __no_init    __attribute__((noinit))
+#define __no_init __attribute__((noinit))
 
 #endif /* !defined _GNU_ASSEMBLER_ */
 

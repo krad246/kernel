@@ -18,16 +18,18 @@
 /*******************************************************************************
  * defines
  ******************************************************************************/
-#define MEM_RMWR(addr, wval, mask) \
-({ \
-	cpu_enter_critical(); \
-	DECLTYPE(*addr) __mem_val = *(addr); \
-	__mem_val = (__mem_val & ~((DECLTYPE(*addr)) (mask))) | \
-				 ( ((DECLTYPE(*addr)) (wval)) & \
-				 ( ((DECLTYPE(*addr)) (mask)))); \
-	*addr = __mem_val; \
-	cpu_exit_critical(); \
-})
+#define MEM_RMWR(addr, wval, mask)                                 \
+	(                                                              \
+		{                                                          \
+			cpu_enter_critical();                                  \
+			DECLTYPE(*addr)                                        \
+			__mem_val = *(addr);                                   \
+			__mem_val = (__mem_val & ~((DECLTYPE(*addr))(mask))) | \
+						(((DECLTYPE(*addr))(wval)) &               \
+						 (((DECLTYPE(*addr))(mask))));             \
+			*addr = __mem_val;                                     \
+			cpu_exit_critical();                                   \
+		})
 
 /*******************************************************************************
  * public functions

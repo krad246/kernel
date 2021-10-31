@@ -14,13 +14,13 @@
 typedef struct dlist_node
 {
 	struct dlist_node *prev;
-    struct dlist_node *next;
+	struct dlist_node *next;
 } dlist_node_t;
 
 static inline void dlist_add_after(dlist_node_t *node, dlist_node_t *new_node)
 {
-    new_node->next = node->next;
-    node->next = new_node;
+	new_node->next = node->next;
+	node->next = new_node;
 
 	new_node->prev = node->prev;
 	node->prev = new_node;
@@ -41,7 +41,7 @@ static inline void dlist_remove(dlist_node_t *node)
 	{
 		prev->next = next;
 	}
-	
+
 	if (next != NULL)
 	{
 		next->prev = prev;
