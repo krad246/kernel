@@ -19,6 +19,7 @@
 #include "attributes.h"
 #include "c_traps.h"
 #include "memmodel.h"
+#include "mem.h"
 #include "sched.h"
 #include "utils.h"
 

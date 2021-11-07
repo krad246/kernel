@@ -14,8 +14,34 @@
 #include "sched_priv.h"
 
 /*******************************************************************************
- * defines
+ * file-scope globals
  ******************************************************************************/
+STATIC k_sched_t g_kern_sched =
+{
+	.curr_thread = NULL,
+	.policy = NULL,
+	.known_policies =
+	{
+		NULL,
+		NULL,
+		NULL
+	}
+};
+
+STATIC volatile k_thread_id_t g_kern_curr_pid = 1;
+
+/*******************************************************************************
+ * private functions
+ ******************************************************************************/
+
+STATIC k_status_code_t k_sched_load_policies(void)
+{
+	k_sched_lock();
+	g_kern_sched.known_policies[K_SCHED_RR] = g_kern_rr_policy;
+	k_sched_unlock();
+
+	return K_STATUS_OK;
+}
 
 /*******************************************************************************
  * public functions
@@ -24,21 +50,27 @@ k_status_code_t k_sched_init(k_sched_policy_t policy)
 {
 	if (policy >= K_SCHED_N_POLICY)
 	{
-		return -1;
+		errno = EINVAL;
+		return K_STATUS_ERROR;
 	}
 
-	g_kern_sched.known_policies[K_SCHED_ROUND_ROBIN] = g_kern_rr_policy;
+	k_sched_lock();
+
+	k_sched_load_policies();
 
 	g_kern_sched.policy = g_kern_sched.known_policies[policy];
 	if (g_kern_sched.policy == NULL)
 	{
-		return -2;
+		errno = ENOSYS;
+		return K_STATUS_ERROR;
 	}
 
 	g_kern_sched.policy->init();
-	g_kern_sched.idle = k_idle;
+	// k_idle_thread_create(k_idle);
 
-	return 0;
+	k_sched_unlock();
+
+	return K_STATUS_OK;
 }
 
 k_status_code_t k_sched_job_start(k_thread_t *thread)
@@ -104,5 +136,31 @@ volatile k_thread_t *k_sched_current_job(void)
 bool k_sched_is_idle(void)
 {
 }
+
+k_thread_id_t k_sched_alloc_pid(void)
+{
+	unsigned int pid;
+
+	k_sched_lock();
+	pid = g_kern_curr_pid;
+	k_sched_unlock();
+
+	k_sched_lock();
+	g_kern_curr_pid++;
+	k_sched_unlock();
+
+	return pid;
+}
+
+void k_sched_lock(void)
+{
+	cpu_enter_critical();
+}
+
+void k_sched_unlock(void)
+{
+	cpu_exit_critical();
+}
+
 
 // add a query function that calls rr.c

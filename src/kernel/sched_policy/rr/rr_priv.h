@@ -1,17 +1,22 @@
 /*
- * rr.c
+ * rr_priv.h
  *
  *  Created on: Jun 4, 2021
  *      Author: krad2
  */
 
+#ifndef RR_PRIV_H_
+#define RR_PRIV_H_
+
 /*******************************************************************************
  * includes
  ******************************************************************************/
 #include <stdlib.h>
+#include <errno.h>
 
-#include "attributes.h"
+#include "alloc.h"
 #include "clist.h"
+#include "attributes.h"
 #include "thread.h"
 #include "sched.h"
 #include "utils.h"
@@ -74,14 +79,7 @@ typedef struct
 
 } k_job_metadata_t;
 
-typedef struct
-{
-	const k_sched_interface_t interface;
 
-	clist_t run_q;
-	clist_t pause_q;
-	clist_t create_q;
-} k_round_robin_policy_t;
 
 /*******************************************************************************
  * forward declarations
@@ -97,26 +95,4 @@ EXTERN k_thread_t *k_rr_job_next(k_thread_t *);
 EXTERN k_thread_t *k_rr_job_yield(k_thread_t *);
 EXTERN k_thread_t *k_rr_job_find(k_thread_id_t);
 
-/*******************************************************************************
- * file-scope globals
- ******************************************************************************/
-STATIC k_round_robin_policy_t g_kern_rr_interface =
-	{
-		.interface =
-			{
-				.init = k_rr_init,
-
-				.start = k_rr_job_start,
-				.pause = k_rr_job_pause,
-				.resume = k_rr_job_resume,
-				.restart = k_rr_job_restart,
-
-				.create = k_rr_job_create,
-				.kill = k_rr_job_kill,
-
-				.next = k_rr_job_next,
-				.yield = k_rr_job_yield,
-
-				.find = k_rr_job_find}};
-
-k_sched_interface_t *g_kern_rr_policy = (k_sched_interface_t *)&g_kern_rr_interface;
+#endif

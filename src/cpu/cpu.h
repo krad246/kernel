@@ -8,24 +8,32 @@
 #ifndef CPU_H_
 #define CPU_H_
 
-#include <msp430.h>
+/*******************************************************************************
+ * includes
+ ******************************************************************************/
 #include "attributes.h"
 
+/*******************************************************************************
+ * defines
+ ******************************************************************************/
 #define CPU_FREQ
+#define CPU_TRAPS_ENABLED (GIE)
 
-WEAK void cpu_idle(void)
+typedef enum
 {
-	__low_power_mode_0();
-}
+	CPU_LPM0,
+	CPU_LPM1,
+	CPU_LPM2,
+	CPU_LPM3,
+	CPU_LPM4
+} cpu_lpm_t;
 
-WEAK void cpu_yield(void)
-{
-	//        t
-}
+/*******************************************************************************
+ * public functions
+ ******************************************************************************/
+EXTERN WEAK void cpu_idle(cpu_lpm_t level);
+EXTERN WEAK void cpu_yield(void);
+EXTERN WEAK void cpu_restart(void);
 
-WEAK void cpu_restart(void)
-{
-	//        wdog_violate();
-}
 
 #endif /* CPU_H_ */

@@ -14,6 +14,7 @@
 #include "sched.h"
 #include "idle.h"
 #include "thread.h"
+#include "sched_policy.h"
 
 /*******************************************************************************
  * data structures
@@ -32,15 +33,5 @@ typedef struct
  * file-scope globals
  ******************************************************************************/
 EXTERN k_sched_interface_t *g_kern_rr_policy;
-
-STATIC k_sched_t g_kern_sched =
-	{
-		.curr_thread = NULL,
-		.policy = NULL,
-		.known_policies =
-			{
-				NULL,
-				NULL,
-				NULL}};
 
 #endif

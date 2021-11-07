@@ -7,12 +7,19 @@
 
 #include "c_traps.h"
 #include "attributes.h"
-//#include "thread.h"
+#include "thread.h"
 // #include "timer.h"
 #include "utils.h"
 #include <msp430.h>
 
-#if 1
+INTERRUPT(CONFIG_K_TIMER_VECTOR) NAKED STATIC void k_preemption_point(void)
+{
+	volatile int x = 2;
+	x++;
+}
+
+
+#if 0
 #define K_TIMER_BASE JOIN(CONFIG_K_TIMER, _BASE)
 
 #define K_IS_ONLY_THREAD(x) ({ !cpu_context_switch_requested() && k_sched_jobs_avail(); })
@@ -85,7 +92,7 @@ void cpu_context_switch(void)
 			{
 
 				/* pick the first added one and restart the scheduling from that point */
-				g_kern_sched.current_thread = clist_lpeek()
+				g_kern_sched.current_thread = clist_lpeek();
 			}
 			else
 			{
@@ -95,7 +102,7 @@ void cpu_context_switch(void)
 			k_sched_job_next();
 		}
 
-		cpu_context_switch_requested = false;
+		// cpu_context_switch_requested = false;
 	}
 }
 

@@ -21,8 +21,13 @@ def main():
 /*******************************************************************************
  * includes
  ******************************************************************************/
-#include <msp430.h>
 #include "attributes.h"
+#ifndef TEST
+	#include <msp430.h>
+#else 
+	#include "msp430_dummy.h"
+#endif
+
 """.format(k_prefix, k_prefix)
 
 	defines = \
@@ -66,7 +71,6 @@ def main():
 			vnums.append(vnum)
 
 	if args.kernel:
-		# autogen.write("} k_trap_num_t;\n\n")
 		autogen.write("\n")
 
 		autogen.write("#if defined(TRAP_C_)\n")

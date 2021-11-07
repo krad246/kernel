@@ -8,21 +8,20 @@
 /*******************************************************************************
  * includes
  ******************************************************************************/
-#include "attributes.h"
-#include "msp430.h"
-#include "mem.h"
+#include "critical.h"
+#include "critical_priv.h"
 
 /*******************************************************************************
  * file-scope globals
  ******************************************************************************/
-STATIC int g_cpu_crit_sect_count = 0;
+STATIC volatile int g_cpu_crit_sect_count = 0;
 
 /*******************************************************************************
  * public functions
  ******************************************************************************/
 void cpu_enter_critical(void)
 {
-	if (__get_interrupt_state() & GIE)
+	if (!cpu_in_critical())
 	{
 		_disable_interrupts();
 	}
@@ -42,5 +41,5 @@ void cpu_exit_critical(void)
 
 bool cpu_in_critical(void)
 {
-	return !(__get_interrupt_state() & GIE);
+	return !(__get_interrupt_state() & CPU_TRAPS_ENABLED);
 }

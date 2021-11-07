@@ -11,11 +11,17 @@
 /*******************************************************************************
  * includes
  ******************************************************************************/
-#include <msp430.h>
-
+#include <errno.h>
 #include <stddef.h>
 #include <string.h>
 
+#ifndef TEST
+	#include <msp430.h>
+#else 
+	#include "msp430_dummy.h"
+#endif
+
+#include "cpu.h"
 #include "c_traps.h"
 #include "critical.h"
 
@@ -32,6 +38,6 @@ STATIC volatile cpu_trap_table_t *g_cpu_trap_table_p = NULL;
 STATIC volatile bool g_cpu_in_trap = false;
 
 EXTERN volatile void *g_cpu_trap_sp;
-EXTERN volatile unsigned char g_cpu_trap_stack[CPU_TRAP_STACK_SIZE];
+EXTERN volatile uint8_t g_cpu_trap_stack[CPU_TRAP_STACK_SIZE];
 
 #endif /* C_TRAPS_PRIV_H_ */

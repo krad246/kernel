@@ -12,13 +12,12 @@
  * includes
  ******************************************************************************/
 #include "attributes.h"
-#include "sched.h"
+#include "thread.h"
+#include "k_status.h"
 
 /*******************************************************************************
  * globals
  ******************************************************************************/
-#if defined(SCHED_C_)
 EXTERN k_status_code_t k_idle(k_thread_arg_t *unused);
-#endif
 
 #endif /* IDLE_H_ */

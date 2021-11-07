@@ -14,6 +14,32 @@
 #include "rr.h"
 
 /*******************************************************************************
+ * file-scope globals
+ ******************************************************************************/
+k_round_robin_policy_t g_kern_rr_interface =
+{
+	.interface =
+		{
+			.init = k_rr_init,
+
+			.start = k_rr_job_start,
+			.pause = k_rr_job_pause,
+			.resume = k_rr_job_resume,
+			.restart = k_rr_job_restart,
+
+			.create = k_rr_job_create,
+			.kill = k_rr_job_kill,
+
+			.next = k_rr_job_next,
+			.yield = k_rr_job_yield,
+
+			.find = k_rr_job_find
+		}
+};
+
+k_sched_interface_t *g_kern_rr_policy = (k_sched_interface_t *)&g_kern_rr_interface;
+
+/*******************************************************************************
  * private functions
  ******************************************************************************/
 int k_thread_matches_id(const clist_node_t *node, void *id)
@@ -24,6 +50,7 @@ int k_thread_matches_id(const clist_node_t *node, void *id)
 k_thread_t *k_rr_queue_search(clist_t *queue, k_thread_id_t id)
 {
 	clist_node_t *node = clist_foreach(queue, k_thread_matches_id, &id);
+	
 	if (node == NULL)
 	{
 		return NULL;
@@ -43,7 +70,7 @@ k_status_code_t k_rr_init(void)
 
 	/* TODO: allocate all the queue memory up front */
 
-	return 0;
+	return K_STATUS_OK;
 }
 
 k_status_code_t k_rr_job_start(k_thread_t *thread)
@@ -53,13 +80,14 @@ k_status_code_t k_rr_job_start(k_thread_t *thread)
 	/* already started is a noop */
 	if (K_JOB_STATE(node) == K_JOB_RUNNING)
 	{
-		return 0;
+		return K_STATUS_OK;
 	}
 
 	/* must resume, not start a paused job */
 	if (K_JOB_STATE(node) == K_JOB_PAUSED)
 	{
-		return -1;
+		errno = EBADF;
+		return K_STATUS_ERROR;
 	}
 
 	/* drop the thread from the create queue */
@@ -73,7 +101,7 @@ k_status_code_t k_rr_job_start(k_thread_t *thread)
 	/* add to the run queue */
 	clist_lpush(&g_kern_rr_interface.run_q, node);
 
-	return 0;
+	return K_STATUS_OK;
 }
 
 k_status_code_t k_rr_job_pause(k_thread_t *thread)
@@ -83,13 +111,14 @@ k_status_code_t k_rr_job_pause(k_thread_t *thread)
 	/* can't pause a job that didn't even start */
 	if (K_JOB_STATE(node) == K_JOB_CREATED)
 	{
-		return -1;
+		errno = EBADF;
+		return K_STATUS_ERROR;
 	}
 
 	/* pausing a paused job is idempotent */
 	if (K_JOB_STATE(node) == K_JOB_PAUSED)
 	{
-		return 0;
+		return K_STATUS_OK;
 	}
 
 	/* drop from run queue */
@@ -100,7 +129,7 @@ k_status_code_t k_rr_job_pause(k_thread_t *thread)
 	/* add to pause queue */
 	clist_lpush(&g_kern_rr_interface.pause_q, node);
 
-	return 0;
+	return K_STATUS_OK;
 }
 
 k_status_code_t k_rr_job_resume(k_thread_t *thread)
@@ -110,13 +139,14 @@ k_status_code_t k_rr_job_resume(k_thread_t *thread)
 	/* can't resume a thread that wasn't started */
 	if (K_JOB_STATE(node) == K_JOB_CREATED)
 	{
-		return -1;
+		errno = EBADF;
+		return K_STATUS_ERROR;
 	}
 
 	/* noop if it was running */
 	if (K_JOB_STATE(node) == K_JOB_RUNNING)
 	{
-		return 0;
+		return K_STATUS_OK;
 	}
 
 	/* drop from pause queue */
@@ -127,7 +157,7 @@ k_status_code_t k_rr_job_resume(k_thread_t *thread)
 	/* add to run queue */
 	clist_lpush(&g_kern_rr_interface.run_q, node);
 
-	return 0;
+	return K_STATUS_OK;
 }
 
 k_status_code_t k_rr_job_restart(k_thread_t *thread)
@@ -136,7 +166,7 @@ k_status_code_t k_rr_job_restart(k_thread_t *thread)
 	k_rr_job_create(thread, K_JOB_METADATA(thread->state)->create.init_prio);
 	k_rr_job_start(thread);
 
-	return 0;
+	return K_STATUS_OK;
 }
 
 k_status_code_t k_rr_job_create(k_thread_t *thread, unsigned int prio)
@@ -144,9 +174,13 @@ k_status_code_t k_rr_job_create(k_thread_t *thread, unsigned int prio)
 	/* brand new thread needs data allocated */
 	if (thread->state == NULL)
 	{
-		thread->state = malloc(sizeof(k_job_metadata_t));
-		memset(thread->state, 0, sizeof(k_job_metadata_t));
+		thread->state = k_alloc(sizeof(k_job_metadata_t));
+		if (thread->state == NULL)
+		{
+			return K_STATUS_ERROR;
+		}
 
+		memset(thread->state, 0, sizeof(k_job_metadata_t));
 		thread->state += offsetof(k_job_metadata_t, run.entry);
 	}
 
@@ -158,7 +192,7 @@ k_status_code_t k_rr_job_create(k_thread_t *thread, unsigned int prio)
 
 	clist_lpush(&g_kern_rr_interface.create_q, node);
 
-	return 0;
+	return K_STATUS_OK;
 }
 
 k_status_code_t k_rr_job_kill(k_thread_t *thread)
@@ -171,10 +205,10 @@ k_status_code_t k_rr_job_kill(k_thread_t *thread)
 	clist_remove(&g_kern_rr_interface.pause_q, node);
 
 	/* delete the thread's state variables, not useful anymore */
-	free(K_JOB_METADATA(node));
+	k_free(K_JOB_METADATA(node));
 	thread->state = NULL;
 
-	return 0;
+	return K_STATUS_OK;
 }
 
 k_thread_t *k_rr_job_next(k_thread_t *thread)
@@ -189,6 +223,7 @@ k_thread_t *k_rr_job_next(k_thread_t *thread)
 
 		K_JOB_METADATA(node)->run.n_slices_used = 0;
 		return K_JOB_THREAD(node->next);
+
 	}
 	else
 	{

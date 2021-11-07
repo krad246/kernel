@@ -16,8 +16,6 @@
 /*******************************************************************************
  * defines
  ******************************************************************************/
-#define K_TRAP_STACK_SIZE (CPU_TRAP_STACK_SIZE)
-
 typedef cpu_trap_args_t k_trap_args_t;
 typedef cpu_trap_callback_t k_trap_callback_t;
 
@@ -27,6 +25,6 @@ typedef cpu_trap_callback_t k_trap_callback_t;
 EXTERN int k_traps_init(void);
 EXTERN int k_trap_connect(unsigned int tnum, k_trap_callback_t callback, k_trap_args_t *args);
 EXTERN int k_trap_disconnect(unsigned int tnum);
-EXTERN volatile bool k_trap_in_progress(void);
+EXTERN bool k_trap_in_progress(void);
 
 #endif

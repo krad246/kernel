@@ -14,13 +14,12 @@
 #include <stddef.h>
 #include "attributes.h"
 #include "memmodel.h"
-
-typedef int k_status_code_t;
+#include "k_status.h"
 
 /*******************************************************************************
  * defines
  ******************************************************************************/
-#define K_THREAD_PRIORITY(x) ((x)&0xFF)
+#define K_THREAD_PRIORITY(x) ((x) & 0xFF)
 #define K_THREAD_SELF ({ k_thread_current(); })
 
 typedef void k_thread_arg_t;
@@ -37,7 +36,7 @@ typedef unsigned int k_thread_id_t;
 /*******************************************************************************
  * data structures
  ******************************************************************************/
-#if defined(SCHED_C_) || defined(THREAD_C_)
+#if defined(SCHED_C_) || defined(THREAD_C_) || defined(IDLE_C_)
 typedef struct PACKED
 {
 	cpu_sw_context_t sw_ctx;

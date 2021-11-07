@@ -14,6 +14,11 @@
 #include "trap.h"
 
 /*******************************************************************************
+ * file-scope globals
+ ******************************************************************************/
+STATIC cpu_trap_table_t g_kern_trap_table;
+
+/*******************************************************************************
  * private functions
  ******************************************************************************/
 STATIC bool k_is_legal_trap(unsigned int tnum)
@@ -47,12 +52,14 @@ int k_trap_connect(unsigned int tnum, k_trap_callback_t callback, k_trap_args_t 
 {
 	if (!k_is_legal_trap(tnum))
 	{
-		return -1;
+		errno = EINVAL;
+		return K_STATUS_ERROR;
 	}
 
 	if (k_is_rsvd_trap(tnum))
 	{
-		return -1;
+		errno = EACCES;
+		return K_STATUS_ERROR;
 	}
 
 	return cpu_install_handler(tnum, callback, args);
@@ -62,18 +69,18 @@ int k_trap_disconnect(unsigned int tnum)
 {
 	if (!k_is_legal_trap(tnum))
 	{
-		return -1;
+		return K_STATUS_ERROR;
 	}
 
 	if (k_is_rsvd_trap(tnum))
 	{
-		return -1;
+		return K_STATUS_ERROR;
 	}
 
 	return cpu_remove_handler(tnum);
 }
 
-volatile bool k_trap_in_progress(void)
+bool k_trap_in_progress(void)
 {
 	return cpu_trap_in_progress();
 }

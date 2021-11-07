@@ -54,15 +54,21 @@ STYLE_FLAGS		= -masm-hex -ffunction-sections -fdata-sections
 
 define k_device_name
 $(shell echo 
-	$(shell echo $1 | cut -d '_' -f1 | sed 's/[0-9]//g')_$(shell echo $1 | cut -d '_' -f2) | 
+	$(shell echo $(strip $1) | cut -d '_' -f1 | sed 's/[0-9]//g')_$(shell echo $(strip $1) | cut -d '_' -f2) | 
 	tr '[:lower:]' '[:upper:]')
 endef
+
+define k_vector_name
+$(shell echo $(strip $1)_VECTOR | tr '[:lower:]' '[:upper:]')
+endef
+
 #TODO restrict this define to the scope of kernel code only 
 CFLAGS			:= -mmcu=$(CONFIG_MCU) $(OPT_FLAGS) $(WARN_FLAGS) \
 					-msilicon-errata-warn=$(ERRATA_FLAGS)  \
 					$(SIZE_FLAGS) $(STYLE_FLAGS) \
 					$(addprefix -I, $(INCDIRS)) -MMD -MP \
 					-DCONFIG_K_TIMER=$(call k_device_name, $(CONFIG_K_TIMER)) \
+					-DCONFIG_K_TIMER_VECTOR=$(call k_vector_name, $(CONFIG_K_TIMER)) \
 					-DCONFIG_K_UART=$(call k_device_name, $(CONFIG_K_UART)) \
 					-DCONFIG_K_TRAP_STACK_SIZE=$(CONFIG_K_TRAP_STACK_SIZE)
 					

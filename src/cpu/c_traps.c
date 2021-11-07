@@ -20,12 +20,12 @@
 /*******************************************************************************
  * public functions
  ******************************************************************************/
-int cpu_traps_init(void *table_p)
+cpu_status_code_t cpu_traps_init(void *table_p)
 {
 	if (table_p == NULL)
 	{
-		// TODO: change this to error case
-		return -1;
+		errno = EINVAL;
+		return CPU_STATUS_ERROR;
 	}
 
 	cpu_enter_critical();
@@ -49,37 +49,42 @@ int cpu_traps_init(void *table_p)
 
 	cpu_exit_critical();
 
-	return 0;
+	return CPU_STATUS_OK;
 }
 
-int cpu_install_handler(unsigned int tnum, cpu_trap_callback_t callback, cpu_trap_args_t *args)
+cpu_status_code_t cpu_install_handler(unsigned int tnum, cpu_trap_callback_t callback, cpu_trap_args_t *args)
 {
 	if (g_cpu_trap_table_p == NULL)
 	{
-		// TODO: change this to error case
-		return -1;
+		errno = EINVAL;
+		return CPU_STATUS_ERROR;
 	}
-
-	cpu_trap_handler_t *old_handler = &(*g_cpu_trap_table_p)[tnum];
 
 	cpu_enter_critical();
 
+	cpu_trap_handler_t *old_handler = &(*g_cpu_trap_table_p)[tnum];
 	old_handler->callback = callback;
 	old_handler->args = args;
 
 	cpu_exit_critical();
 
-	return 0;
+	return CPU_STATUS_OK;
 }
 
-int cpu_remove_handler(unsigned int tnum)
+cpu_status_code_t cpu_remove_handler(unsigned int tnum)
 {
 	return cpu_install_handler(tnum, NULL, NULL);
 }
 
-volatile bool cpu_trap_in_progress(void)
+bool cpu_trap_in_progress(void)
 {
-	return g_cpu_in_trap;
+	bool in_trap;
+	
+	cpu_enter_critical();
+	in_trap = g_cpu_in_trap;
+	cpu_exit_critical();
+
+	return in_trap;
 }
 
 WEAK bool cpu_context_switch_requested(void)
@@ -114,6 +119,5 @@ void cpu_trap(unsigned int tnum)
 
 WEAK NORETURN void cpu_panic(unsigned int tnum)
 {
-	while (1)
-		;
+	while (FOREVER);
 }

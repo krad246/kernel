@@ -44,7 +44,7 @@ int main(void)
     P1DIR |= BIT0;PM5CTL0 &= ~LOCKLPM5;
 
     k_traps_init();
-	k_sched_init(K_SCHED_ROUND_ROBIN);
+	k_sched_init(K_SCHED_RR);
 
 	k_thread_id_t id;
 	k_thread_create(K_THREAD_PRIORITY(1), K_STACK_SIZE_TINY, &id);

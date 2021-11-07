@@ -38,6 +38,8 @@
 #ifndef __IN430_H__
 #define __IN430_H__
 
+#include "msp430_dummy.h"
+
 /* Definitions for projects using the GNU C/C++ compiler */
 #if !defined(__ASSEMBLER__)
 
@@ -102,12 +104,12 @@ void _data20_write_long(void *addr, unsigned long src);
 unsigned long _data20_read_long(void *addr);
 #define __data20_read_long(addr) _data20_read_long(addr)
 
-#define _low_power_mode_0() _bis_SR_register(0x18)
-#define _low_power_mode_1() _bis_SR_register(0x58)
-#define _low_power_mode_2() _bis_SR_register(0x98)
-#define _low_power_mode_3() _bis_SR_register(0xD8)
-#define _low_power_mode_4() _bis_SR_register(0xF8)
-#define _low_power_mode_off_on_exit() _bic_SR_register_on_exit(0xF0)
+#define _low_power_mode_0() _bis_SR_register(LPM0_bits | GIE)
+#define _low_power_mode_1() _bis_SR_register(LPM1_bits | GIE)
+#define _low_power_mode_2() _bis_SR_register(LPM2_bits | GIE)
+#define _low_power_mode_3() _bis_SR_register(LPM3_bits | GIE)
+#define _low_power_mode_4() _bis_SR_register(LPM4_bits | GIE)
+#define _low_power_mode_off_on_exit() _bic_SR_register_on_exit(LPM4_bits)
 
 #define __low_power_mode_0() _low_power_mode_0()
 #define __low_power_mode_1() _low_power_mode_1()
